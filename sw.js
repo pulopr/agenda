@@ -1,6 +1,6 @@
 // Agenda: guarda la app en la tablet para abrirla sin conexión.
 // Al publicar una versión nueva, cambia el número para que la tablet la recoja.
-const VERSION = "agenda-v2";
+const VERSION = "agenda-v3";
 const ARCHIVOS = ["./", "index.html", "manifest.webmanifest", "icon-192.png", "icon-512.png", "icon-maskable-512.png"];
 
 self.addEventListener("install", e => {

@@ -311,7 +311,7 @@ button.chevron:hover{border-color:var(--plomo);background:#fff}
 .campo{margin-bottom:12px;min-width:0}
 .campo > label,.campo > .lab{display:block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--grafito);font-weight:700;margin-bottom:4px}
 .campo input,.campo select,.campo textarea{width:100%;background:#fff;border:1px solid var(--plomo);border-radius:2px;padding:8px 9px}
-.campo textarea{min-height:64px;resize:vertical}
+.campo textarea{min-height:160px;resize:vertical;line-height:1.5}
 .campo .seg{display:flex}
 .campo .seg button{flex:1 1 auto}
 .dosc{display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -393,7 +393,6 @@ body.en-nota nav.tabs{margin-top:8px}
   <div class="brand">
     <div class="eyebrow">Plan anual · actividades · notas</div>
     <h1>Agenda</h1>
-    <div class="sub">Todo lo que viene, siempre a la vista.</div>
   </div>
   <div class="hoy"><strong id="hoyFecha">—</strong><span id="hoySem">—</span></div>
 </header>
@@ -1191,12 +1190,6 @@ function formApunte(item,selector){
       '<div class="campo" id="gCampoFecha"><label for="gFecha">Fecha</label><input type="date" id="gFecha" value="'+esc(e.fecha)+'"></div>'+
       '<div class="campo"><label for="fResp">Responsable</label><select id="fResp">'+opcionesResp(e.seccion)+'</select></div>'+
     '</div>'+
-    '<div class="dosc">'+
-      '<div class="campo"><label for="gResp">A cargo de (opcional)</label><input id="gResp" value="'+esc(e.resp||"")+'" placeholder="Sargento de la Sección"></div>'+
-      '<div class="campo"><label for="gAct">Actividad asociada</label><select id="gAct"><option value="">— ninguna —</option>'+
-        db.actividades.map(a=>'<option value="'+a.id+'"'+(a.id===e.actividadId?" selected":"")+'>'+esc(a.nombre)+'</option>').join("")+
-      '</select></div>'+
-    '</div>'+
     (esSub?'':bloqueSubs())+
     '<div class="campo"><label for="gNotas">Notas</label><textarea id="gNotas">'+esc(e.notas||"")+'</textarea></div>';
   const acc=(item.id?'<button class="btn peligro izq" id="gDel">Eliminar</button>':'')+
@@ -1221,8 +1214,8 @@ function formApunte(item,selector){
     if(!tit){ alert("Escribe de qué se trata."); return; }
     if(cuando==="fecha" && !f){ alert("Falta la fecha. Si aún no la tienes, elige «Cuanto antes» o «Sin fecha»."); return; }
     const datos={titulo:tit,fecha:cuando==="fecha"?f:"",bolsa:cuando==="fecha"?null:cuando,
-      seccion:document.getElementById("fResp").value,resp:document.getElementById("gResp").value.trim(),
-      actividadId:document.getElementById("gAct").value,notas:document.getElementById("gNotas").value};
+      seccion:document.getElementById("fResp").value,resp:e.resp||"",
+      actividadId:e.actividadId||"",notas:document.getElementById("gNotas").value};
     if(!esSub) datos.subtareas=subs.filter(s=>s.texto.trim()).map(s=>({id:s.id,texto:s.texto.trim(),fecha:s.fecha||"",hecho:!!s.hecho}));
     const actAsoc=actividad(datos.actividadId);
     datos.offset = (actAsoc && actAsoc.fechaD && datos.fecha) ? Math.round((aFecha(datos.fecha)-aFecha(actAsoc.fechaD))/86400000) : null;
