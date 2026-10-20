@@ -1,7 +1,7 @@
 {
-  "name": "Horizonte",
-  "short_name": "Horizonte",
-  "description": "Plan anual, apuntes y reuniones de la 2ª y 3ª Sección.",
+  "name": "Agenda",
+  "short_name": "Agenda",
+  "description": "Plan anual, apuntes y notas: S1, S2, S3, S4 y Batería de Servicios.",
   "lang": "es",
   "start_url": "./",
   "scope": "./",
@@ -10,8 +10,23 @@
   "background_color": "#E7EAE5",
   "theme_color": "#16201C",
   "icons": [
-    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
-    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
-    {"src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ]
 }
