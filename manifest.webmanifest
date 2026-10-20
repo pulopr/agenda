@@ -1,0 +1,17 @@
+{
+  "name": "Horizonte",
+  "short_name": "Horizonte",
+  "description": "Plan anual, apuntes y reuniones de la 2ª y 3ª Sección.",
+  "lang": "es",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#E7EAE5",
+  "theme_color": "#16201C",
+  "icons": [
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}

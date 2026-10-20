@@ -1,0 +1,1893 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#16201C">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Horizonte — Control de actividades 2ª y 3ª Sección</title>
+<style>
+:root{
+  --papel:#E7EAE5;
+  --papel2:#F3F5F1;
+  --tinta:#16201C;
+  --grafito:#5A6660;
+  --plomo:#C9D0C9;
+  --alerta:#9E2B1E;
+  --aviso:#8A6B00;
+  --hecho:#2E6B58;
+  --s2:#2B5566;
+  --s3:#4E5B2B;
+  --mono:ui-monospace,"Cascadia Mono","Consolas","DejaVu Sans Mono",monospace;
+  --sans:"Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--papel);color:var(--tinta);font-family:var(--sans);
+  font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased;
+}
+button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--tinta);outline-offset:2px}
+
+.eyebrow{
+  font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--grafito);
+}
+
+/* ---------- estructura ---------- */
+.app{max-width:1400px;margin:0 auto;padding:0 20px 80px}
+header.top{
+  border-bottom:2px solid var(--tinta);padding:22px 0 14px;margin-bottom:0;
+  display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;justify-content:space-between;
+}
+.brand h1{
+  font-size:26px;font-weight:700;letter-spacing:-.02em;margin:2px 0 0;
+}
+.brand .sub{font-size:13px;color:var(--grafito);margin-top:2px}
+.hoy{text-align:right;font-family:var(--mono);font-size:13px;color:var(--grafito)}
+.hoy strong{display:block;font-size:19px;color:var(--tinta);letter-spacing:-.01em}
+
+.tally{display:flex;gap:0;flex-wrap:wrap;border-bottom:1px solid var(--plomo)}
+.tally > div{
+  padding:12px 20px 12px 0;margin-right:20px;border-right:1px solid var(--plomo);
+}
+.tally > div:last-child{border-right:none}
+.tally .n{font-family:var(--mono);font-size:22px;font-weight:700;line-height:1}
+.tally .n.rojo{color:var(--alerta)}
+.tally .n.ambar{color:var(--aviso)}
+.tally .lab{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--grafito);margin-top:4px}
+
+nav.tabs{display:flex;gap:2px;margin:16px 0 0;flex-wrap:wrap}
+nav.tabs button{
+  background:none;border:1px solid transparent;border-bottom:none;
+  padding:8px 14px;font-size:11px;font-weight:700;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--grafito);border-radius:3px 3px 0 0;
+}
+nav.tabs button:hover{color:var(--tinta);background:var(--papel2)}
+nav.tabs button[aria-selected="true"]{
+  background:var(--papel2);border-color:var(--plomo);color:var(--tinta);
+  box-shadow:inset 0 3px 0 var(--tinta);
+}
+.panel{background:var(--papel2);border:1px solid var(--plomo);border-radius:0 3px 3px 3px;padding:18px}
+
+/* ---------- barra de filtros / alta rápida ---------- */
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:18px}
+.bar input[type=text],.bar input[type=date],.bar select{
+  background:#fff;border:1px solid var(--plomo);border-radius:2px;padding:7px 9px;
+}
+.bar input[type=text]{min-width:230px;flex:1 1 230px}
+.btn{
+  background:var(--tinta);color:var(--papel2);border:1px solid var(--tinta);
+  border-radius:2px;padding:7px 14px;font-weight:600;font-size:13px;
+}
+.btn:hover{background:#0b120f}
+.btn.ghost{background:transparent;color:var(--tinta);border-color:var(--plomo)}
+.btn.ghost:hover{background:var(--papel);border-color:var(--grafito)}
+.btn.peligro{background:transparent;color:var(--alerta);border-color:var(--alerta)}
+.btn.peligro:hover{background:var(--alerta);color:#fff}
+.seg{display:inline-flex;border:1px solid var(--plomo);border-radius:2px;overflow:hidden;background:#fff}
+.seg button{
+  background:none;border:none;padding:7px 12px;font-size:11px;font-weight:700;
+  letter-spacing:.1em;color:var(--grafito);
+}
+.seg button[aria-pressed="true"]{background:var(--tinta);color:var(--papel2)}
+
+/* ---------- horizonte ---------- */
+.grupo{margin:0 0 4px}
+.grupo-cab{
+  display:flex;align-items:center;gap:12px;padding:16px 0 6px;
+}
+.grupo-cab .linea{flex:1;height:1px;background:var(--plomo)}
+.grupo-cab .cuenta{font-family:var(--mono);font-size:11px;color:var(--grafito)}
+.grupo-cab .eyebrow.rojo{color:var(--alerta)}
+
+.fila{
+  display:grid;grid-template-columns:74px 1fr auto;gap:14px;align-items:center;
+  padding:10px 8px;border-bottom:1px solid rgba(90,102,96,.16);
+  background:transparent;text-align:left;width:100%;border-left:none;border-right:none;border-top:none;
+}
+.fila:hover{background:#fff}
+.dist{
+  font-family:var(--mono);font-weight:700;text-align:right;line-height:1;
+  letter-spacing:-.03em;white-space:nowrap;
+}
+.dist .fecha{display:block;font-size:10px;font-weight:400;color:var(--grafito);letter-spacing:0;margin-top:4px}
+.titulo{display:block;font-weight:600;letter-spacing:-.01em}
+.meta{display:block}
+.meta{font-size:12px;color:var(--grafito);margin-top:2px}
+.meta .sep{opacity:.5;margin:0 6px}
+.tag{
+  font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.06em;
+  border:1px solid currentColor;border-radius:2px;padding:1px 5px;vertical-align:1px;
+}
+.tag.s2{color:var(--s2)}
+.tag.s3{color:var(--s3)}
+.tag.d{color:var(--grafito);border-style:dashed}
+.acc{display:flex;gap:6px;align-items:center}
+.check{
+  width:26px;height:26px;border:1px solid var(--plomo);background:#fff;border-radius:2px;
+  font-size:14px;line-height:1;color:var(--hecho);padding:0;
+}
+.check:hover{border-color:var(--hecho)}
+
+.grupo-cab .pista-txt{font-size:11px;color:var(--grafito);font-style:italic}
+.dist .sub{display:block;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--grafito);margin-top:3px}
+.dist.viejo{color:var(--alerta)}
+.dist.nada{color:var(--plomo);font-weight:400}
+.avisillo{color:var(--aviso);font-weight:600}
+.tag.act{color:var(--tinta);background:var(--plomo);border-color:transparent}
+
+.b0 .dist{font-size:30px;color:var(--alerta)}
+.b1 .dist{font-size:28px;color:var(--alerta)}
+.b2 .dist{font-size:24px;color:var(--aviso)}
+.b3 .dist{font-size:21px}
+.b4 .dist{font-size:19px}
+.b5 .dist{font-size:17px}
+.b6 .dist{font-size:15px}
+.b7 .dist{font-size:13px;color:var(--grafito)}
+.basap .dist{font-size:26px}
+.bsin .dist{font-size:20px}
+.bsin .fila{padding:7px 8px}
+.bsin{opacity:.9}
+.b5 .fila,.b6 .fila,.b7 .fila{padding:7px 8px}
+.b6 .titulo,.b7 .titulo{font-weight:500;font-size:14px}
+.b7{opacity:.8}
+.fila.done .titulo{text-decoration:line-through;color:var(--grafito)}
+.fila.done .dist{color:var(--hecho)}
+
+.vacio{
+  border:1px dashed var(--plomo);border-radius:3px;padding:34px 24px;text-align:center;
+  color:var(--grafito);
+}
+.vacio p{margin:0 0 14px}
+
+/* ---------- mes ---------- */
+.mescab{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.mescab h2{font-size:19px;margin:0;letter-spacing:-.01em;text-transform:capitalize}
+.rejilla{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--plomo);border:1px solid var(--plomo)}
+.rejilla .dow{background:var(--papel);padding:6px 8px;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--grafito);font-weight:700;text-align:center}
+.dia{background:#fff;min-height:96px;padding:5px 6px;text-align:left;border:none;display:block;width:100%}
+.dia:hover{background:#FBFCFA}
+.dia.fuera{background:var(--papel);opacity:.55}
+.dia.hoy{box-shadow:inset 0 0 0 2px var(--tinta)}
+.dia .num{font-family:var(--mono);font-size:12px;color:var(--grafito)}
+.dia.hoy .num{color:var(--tinta);font-weight:700}
+.chip{
+  display:block;font-size:11px;line-height:1.3;margin-top:3px;padding:2px 4px;border-radius:2px;
+  background:var(--papel);border-left:3px solid var(--grafito);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.chip.s2{border-left-color:var(--s2)}
+.chip.s3{border-left-color:var(--s3)}
+.chip.vencido{border-left-color:var(--alerta);color:var(--alerta)}
+.chip.done{opacity:.5;text-decoration:line-through}
+.chip.mas{background:none;border:none;color:var(--grafito);font-family:var(--mono);font-size:10px;padding-left:0}
+
+/* ---------- año ---------- */
+.anio-cab{display:grid;grid-template-columns:190px 1fr;gap:10px;align-items:end;margin-bottom:6px}
+.meses{display:grid;grid-template-columns:repeat(12,1fr);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--grafito);font-weight:700}
+.meses span{text-align:center;border-left:1px solid var(--plomo);padding-bottom:4px}
+.pista-fila{display:grid;grid-template-columns:190px 1fr;gap:10px;align-items:center;padding:5px 0}
+.pista-nom{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pista{position:relative;height:24px;background:#fff;border:1px solid var(--plomo);overflow:hidden}
+.pista .mesline{position:absolute;top:0;bottom:0;width:1px;background:var(--plomo)}
+.pista .barra{position:absolute;top:5px;height:14px;background:var(--s3);border-radius:2px;min-width:4px}
+.pista .barra.s2{background:var(--s2)}
+.pista .hito{position:absolute;top:2px;width:2px;height:20px;background:var(--grafito)}
+.pista .hito.vencido{background:var(--alerta);width:3px}
+.pista .hoyline{position:absolute;top:0;bottom:0;width:2px;background:var(--alerta);opacity:.85}
+
+/* ---------- plantillas ---------- */
+.tipo{border:1px solid var(--plomo);background:#fff;border-radius:3px;margin-bottom:14px}
+.tipo-cab{display:flex;gap:10px;align-items:center;padding:10px 12px;border-bottom:1px solid var(--plomo);flex-wrap:wrap}
+.tipo-cab input{border:1px solid transparent;background:none;font-weight:700;font-size:16px;padding:4px 6px;border-radius:2px;flex:1 1 220px}
+.tipo-cab input:hover,.tipo-cab input:focus{border-color:var(--plomo);background:var(--papel2)}
+table.hitos{width:100%;border-collapse:collapse}
+table.hitos th{
+  font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--grafito);
+  text-align:left;padding:6px 10px;border-bottom:1px solid var(--plomo);font-weight:700;
+}
+table.hitos td{padding:2px 6px;border-bottom:1px solid rgba(90,102,96,.12)}
+table.hitos input{width:100%;border:1px solid transparent;background:none;padding:6px;border-radius:2px}
+table.hitos input:hover,table.hitos input:focus{border-color:var(--plomo);background:var(--papel2)}
+table.hitos input.dias{font-family:var(--mono);text-align:center}
+.mini{background:none;border:none;color:var(--grafito);font-size:16px;line-height:1;padding:4px 8px}
+.mini:hover{color:var(--alerta)}
+
+/* ---------- actividad con checklist ---------- */
+.grupo-item{border-bottom:1px solid rgba(90,102,96,.16)}
+.grupo-item .fila{border-bottom:none}
+.fila.act{cursor:pointer}
+.progreso{display:block;height:4px;background:var(--plomo);border-radius:2px;margin-top:6px;max-width:280px;overflow:hidden}
+.progreso span{display:block;height:100%;background:var(--hecho)}
+.conteo{font-family:var(--mono);font-size:11px;color:var(--grafito);white-space:nowrap}
+.conteo.todo{color:var(--hecho);font-weight:700}
+.chevron{display:inline-block;width:18px;text-align:center;color:var(--grafito);font-size:11px}
+.lista{margin:0 0 10px 88px;border-left:2px solid var(--plomo);padding:2px 0 2px 12px}
+.modal .lista{margin-left:0}
+.ck{display:grid;grid-template-columns:22px 1fr auto;gap:10px;align-items:center;padding:4px 6px 4px 0}
+.ck:hover{background:#fff}
+.ck-box{
+  width:20px;height:20px;border:1px solid var(--plomo);background:#fff;border-radius:2px;
+  color:var(--hecho);font-size:12px;line-height:18px;text-align:center;padding:0;cursor:pointer;
+}
+.ck-box:hover{border-color:var(--hecho)}
+.ck-nom{font-size:13px;cursor:pointer}
+.ck-nom:hover{text-decoration:underline}
+.ck-nom .quien{color:var(--grafito);font-weight:400}
+.ck-cuando{font-family:var(--mono);font-size:11px;color:var(--grafito);white-space:nowrap}
+.ck.hecho .ck-nom{text-decoration:line-through;color:var(--grafito)}
+.ck.hecho .ck-box{background:var(--hecho);border-color:var(--hecho);color:#fff}
+.ck.vencido .ck-cuando{color:var(--alerta);font-weight:700}
+.ck.hoy .ck-cuando{color:var(--aviso);font-weight:700}
+.ck-pie{padding:8px 0 2px;display:flex;gap:8px;flex-wrap:wrap}
+.ck-pie button{
+  background:none;border:1px dashed var(--plomo);border-radius:2px;
+  font-size:11px;padding:4px 8px;color:var(--grafito);
+}
+.ck-pie button:hover{color:var(--tinta);border-color:var(--grafito);border-style:solid}
+.chip.act{background:var(--plomo);font-weight:700}
+.chip .cl{font-family:var(--mono);font-weight:400;opacity:.75}
+
+/* ---------- bloc de despacho ---------- */
+.cuerpo{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:18px;align-items:start}
+.despacho{
+  position:sticky;top:14px;background:var(--papel2);border:1px solid var(--plomo);
+  border-radius:3px;padding:14px;max-height:calc(100vh - 28px);
+  display:flex;flex-direction:column;
+}
+.desp-cab{display:flex;align-items:baseline;gap:8px;justify-content:space-between}
+.desp-cuenta{font-family:var(--mono);font-size:11px;color:var(--grafito)}
+.desp-cuenta.rojo{color:var(--alerta);font-weight:700}
+.desp-fecha{font-family:var(--mono);font-size:11px;color:var(--grafito);margin:3px 0 10px}
+.desp-alta{display:flex;gap:6px;margin-bottom:8px}
+.desp-alta input{
+  flex:1 1 auto;min-width:0;background:#fff;border:1px solid var(--plomo);
+  border-radius:2px;padding:7px 8px;font-size:13px;
+}
+.desp-alta button{padding:7px 11px;font-size:15px;line-height:1}
+.desp-lista{overflow:auto;margin:0 -4px;padding:0 4px}
+.dp{
+  display:grid;grid-template-columns:20px 1fr 18px;gap:8px;align-items:start;
+  padding:6px 2px;border-bottom:1px solid rgba(90,102,96,.14);
+}
+.dp:last-child{border-bottom:none}
+.dp-box{
+  width:20px;height:20px;border:1px solid var(--plomo);background:#fff;border-radius:2px;
+  color:var(--hecho);font-size:12px;line-height:18px;text-align:center;padding:0;
+}
+.dp-box:hover{border-color:var(--hecho)}
+.dp-txt{
+  font-size:13px;line-height:1.35;text-align:left;word-break:break-word;
+  background:none;border:none;padding:0;width:100%;
+}
+.dp-txt:hover{text-decoration:underline}
+.dp-dias{display:block;font-family:var(--mono);font-size:10px;color:var(--grafito);margin-top:2px;text-decoration:none}
+.dp-edit{width:100%;font-size:13px;background:#fff;border:1px solid var(--plomo);border-radius:2px;padding:3px 5px}
+.dp-x{background:none;border:none;color:var(--plomo);font-size:15px;line-height:1;padding:1px 2px}
+.dp-x:hover{color:var(--alerta)}
+.dp.hecho .dp-txt{text-decoration:line-through;color:var(--grafito)}
+.dp.hecho .dp-box{background:var(--hecho);border-color:var(--hecho);color:#fff}
+.dp-vacio{font-size:12px;color:var(--grafito);font-style:italic;margin:6px 2px}
+.desp-pie{border-top:1px solid var(--plomo);margin-top:8px;padding-top:8px}
+.desp-pie button{background:none;border:none;color:var(--grafito);font-size:11px;padding:2px 0;text-decoration:underline}
+.desp-pie button:hover{color:var(--alerta)}
+
+/* ---------- modal ---------- */
+.velo{position:fixed;inset:0;background:rgba(22,32,28,.55);display:flex;align-items:flex-start;justify-content:center;padding:40px 16px;overflow:auto;z-index:50}
+.modal{background:var(--papel2);border:1px solid var(--tinta);border-radius:3px;max-width:560px;width:100%;padding:22px}
+.modal h3{margin:2px 0 18px;font-size:20px;letter-spacing:-.01em}
+.campo{margin-bottom:12px}
+.campo label{display:block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--grafito);font-weight:700;margin-bottom:4px}
+.campo input,.campo select,.campo textarea{width:100%;background:#fff;border:1px solid var(--plomo);border-radius:2px;padding:8px 9px}
+.campo textarea{min-height:64px;resize:vertical}
+.dosc{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.acciones{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;flex-wrap:wrap}
+.acciones .izq{margin-right:auto}
+.nota{font-size:12px;color:var(--grafito);margin:10px 0 0}
+
+/* ---------- ajustes ---------- */
+.estado{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--grafito)}
+.punto{width:8px;height:8px;border-radius:50%;background:var(--hecho);display:inline-block}
+.punto.mal{background:var(--alerta)}
+.aviso-guardado{
+  border:1px solid var(--aviso);background:#FFF8E1;border-left:4px solid var(--aviso);
+  padding:12px 14px;border-radius:2px;margin-bottom:18px;font-size:13px;
+}
+.bloque{border-top:1px solid var(--plomo);padding-top:16px;margin-top:20px}
+.bloque h3{font-size:15px;margin:0 0 6px}
+.bloque p{margin:0 0 12px;font-size:13px;color:var(--grafito);max-width:62ch}
+
+/* ---------- reuniones ---------- */
+.cuerpo.ancho{grid-template-columns:minmax(0,1fr)}
+body.en-reu header.top,body.en-reu .tally{display:none}
+body.en-reu nav.tabs{margin-top:8px}
+.reu-cab{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+.reu-tit{flex:1 1 240px;min-width:0;font-size:19px;font-weight:700;letter-spacing:-.01em;border:1px solid transparent;background:none;padding:6px 8px;border-radius:2px}
+.reu-tit:hover,.reu-tit:focus{border-color:var(--plomo);background:#fff}
+.reu-campos{display:flex;gap:8px;flex-wrap:wrap;width:100%}
+.reu-campos input,.reu-campos select{background:#fff;border:1px solid var(--plomo);border-radius:2px;padding:7px 9px}
+.reu-campos .asis{flex:1 1 220px;min-width:0}
+.reu-cuerpo{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;align-items:start}
+.reu-barra{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:4px;align-items:center;background:var(--papel2);border:1px solid var(--plomo);border-radius:3px;padding:6px;margin-bottom:10px}
+.rb{background:#fff;border:1px solid var(--plomo);border-radius:2px;min-width:38px;height:38px;padding:0 10px;font-size:13px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.rb[aria-pressed="true"]{background:var(--tinta);color:var(--papel2);border-color:var(--tinta)}
+.rb .pt{display:inline-block;border-radius:50%;background:currentColor}
+.rb.col{padding:0;width:38px}
+.rb.col span{width:18px;height:18px;border-radius:50%;display:block}
+.rb.col[aria-pressed="true"]{background:#fff;box-shadow:inset 0 0 0 2px var(--tinta)}
+.reu-sep{width:1px;height:26px;background:var(--plomo);margin:0 3px}
+.reu-pag{position:relative;margin-bottom:14px;border:1px solid var(--plomo);background:#fff;box-shadow:0 1px 3px rgba(22,32,28,.15)}
+.reu-pag canvas{display:block;width:100%;aspect-ratio:1000/1414;touch-action:none;cursor:crosshair}
+.reu-num{position:absolute;left:8px;bottom:6px;font-family:var(--mono);font-size:10px;color:var(--grafito);pointer-events:none}
+.reu-delpag{position:absolute;right:4px;bottom:2px}
+.reu-mas{width:100%;padding:12px}
+.reu-acuerdos{background:#fff;border:1px solid var(--plomo);border-radius:3px;padding:12px}
+.reu-acuerdos textarea,.reu-acuerdos input{width:100%;background:#fff;border:1px solid var(--plomo);border-radius:2px;padding:7px 8px;margin-bottom:6px;resize:vertical}
+.reu-acuerdos .seg{display:flex;margin-bottom:6px}
+.reu-acuerdos .seg button{flex:1}
+.reu-ac-btns{display:flex;gap:6px;margin-bottom:12px}
+.reu-ac-btns .btn{flex:1}
+.ck.apil{grid-template-columns:22px 1fr}
+.ck.apil .ck-cuando{grid-column:2;margin-top:-2px;white-space:normal}
+#impReu{display:none}
+@media (min-width:860px){
+  .reu-cuerpo{grid-template-columns:minmax(0,1fr) 270px}
+  .reu-acuerdos{position:sticky;top:10px;max-height:calc(100vh - 20px);overflow:auto}
+  .rb.solo-estrecho{display:none}
+}
+
+/* ---------- pantallas táctiles ---------- */
+@media (pointer:coarse){
+  nav.tabs button{padding:12px 16px}
+  .btn{padding:10px 16px;font-size:14px}
+  .seg button{padding:10px 14px}
+  .fila{padding:13px 8px}
+  .check{width:36px;height:36px;font-size:17px}
+  .ck-box,.dp-box{width:30px;height:30px;line-height:28px;font-size:15px}
+  .ck{grid-template-columns:30px 1fr auto;padding:6px 6px 6px 0}
+  .ck.apil{grid-template-columns:30px 1fr}
+  .dp{grid-template-columns:30px 1fr 28px}
+  .dp-x{font-size:20px}
+  .mini{padding:8px 12px;font-size:18px}
+  .rb{min-width:44px;height:44px}
+  .rb.col{width:44px}
+  .bar input,.bar select,.campo input,.campo select,.campo textarea,.desp-alta input,
+  .reu-campos input,.reu-campos select,.reu-acuerdos input,.reu-acuerdos textarea{font-size:16px;padding:10px}
+  .fila:hover,.ck:hover,.dia:hover{background:inherit}
+}
+@media print{
+  body.imp-reu .app,body.imp-reu #modalHost{display:none!important}
+  body.imp-reu #impReu{display:block}
+  #impReu h1{font-size:20px;margin:0 0 4px}
+  #impReu img{display:block;width:100%;max-height:26cm;object-fit:contain;break-before:page}
+}
+
+@media (max-width:1060px){
+  .cuerpo{display:block}
+  .despacho{position:static;max-height:none;margin-top:16px}
+}
+@media (max-width:720px){
+  .app{padding:0 12px 60px}
+  .lista{margin-left:22px}
+  .ck{grid-template-columns:22px 1fr;gap:8px}
+  .ck-cuando{grid-column:2;margin-top:-2px}
+  .fila{grid-template-columns:58px 1fr auto;gap:10px}
+  .b0 .dist,.b1 .dist{font-size:24px}
+  .dia{min-height:70px}
+  .anio-cab,.pista-fila{grid-template-columns:110px 1fr}
+  .dosc{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@media print{
+  nav.tabs,.bar,.acc,.tally,.no-print{display:none!important}
+  body{background:#fff}
+  .panel{border:none;background:#fff;padding:0}
+  .cuerpo{display:block}
+  .despacho{position:static;max-height:none;margin-top:20px;break-inside:avoid}
+  .desp-alta,.desp-pie{display:none}
+  .fila{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<header class="top">
+  <div class="brand">
+    <div class="eyebrow">2ª y 3ª Sección · Plan anual y actividades</div>
+    <h1>Horizonte</h1>
+    <div class="sub">Todo lo que viene, siempre a la vista.</div>
+  </div>
+  <div class="hoy"><strong id="hoyFecha">—</strong><span id="hoySem">—</span></div>
+</header>
+
+<div class="tally" id="tally"></div>
+
+<nav class="tabs" role="tablist">
+  <button role="tab" data-vista="horizonte" aria-selected="true">Horizonte</button>
+  <button role="tab" data-vista="reuniones" aria-selected="false">Reuniones</button>
+  <button role="tab" data-vista="mes" aria-selected="false">Mes</button>
+  <button role="tab" data-vista="anio" aria-selected="false">Año</button>
+  <button role="tab" data-vista="plantillas" aria-selected="false">Plantillas</button>
+  <button role="tab" data-vista="ajustes" aria-selected="false">Datos</button>
+</nav>
+
+<div class="cuerpo">
+  <div class="panel" id="panel"></div>
+
+  <aside class="despacho" id="despacho">
+    <div class="desp-cab">
+      <span class="eyebrow">Despachar con el jefe</span>
+      <span class="desp-cuenta" id="despCuenta"></span>
+    </div>
+    <div class="desp-fecha" id="despFecha">—</div>
+    <form class="desp-alta" id="despAlta" autocomplete="off">
+      <input type="text" id="despTexto" placeholder="Tema a despachar…" aria-label="Tema a despachar">
+      <button class="btn" type="submit" title="Apuntar">+</button>
+    </form>
+    <div class="desp-lista" id="despLista"></div>
+    <div class="desp-pie"><button type="button" id="despLimpiar">Quitar los despachados</button></div>
+  </aside>
+</div>
+</div>
+
+<div id="modalHost"></div>
+<div id="impReu"></div>
+
+<script>
+"use strict";
+
+/* ==================== almacenamiento ==================== */
+const CLAVE = "horizonte-s2s3";
+let persistencia = "comprobando";
+
+async function cargar(){
+  try{
+    if(window.storage){
+      const r = await window.storage.get(CLAVE);
+      if(r && r.value){ persistencia="ok"; return JSON.parse(r.value); }
+      persistencia="ok"; return null;
+    }
+  }catch(e){ persistencia="ok"; }
+  try{
+    const t = localStorage.getItem(CLAVE);
+    localStorage.setItem(CLAVE+"-test","1"); localStorage.removeItem(CLAVE+"-test");
+    persistencia="ok";
+    if(t) return JSON.parse(t);
+    return null;
+  }catch(e){ persistencia="no"; return null; }
+}
+
+let guardarPendiente=null;
+function guardar(){
+  clearTimeout(guardarPendiente);
+  guardarPendiente=setTimeout(async()=>{
+    const txt=JSON.stringify(db);
+    let ok=false;
+    try{ if(window.storage){ await window.storage.set(CLAVE,txt); ok=true; } }catch(e){}
+    if(!ok){ try{ localStorage.setItem(CLAVE,txt); ok=true; }catch(e){} }
+    persistencia = ok ? "ok" : "no";
+  },250);
+}
+
+/* ==================== datos ==================== */
+const uid = ()=> Math.random().toString(36).slice(2,10);
+
+function plantillasIniciales(){
+  return [
+    {id:uid(),nombre:"Marcha a pie",seccion:"S3",hitos:[
+      {nombre:"Propuesta de actividad y necesidades",dias:-30,resp:"Batería"},
+      {nombre:"Evaluación de riesgos y medidas de seguridad",dias:-15,resp:"Batería"},
+      {nombre:"Itinerario, horarios y puntos de agua",dias:-15,resp:"Batería"},
+      {nombre:"Solicitud de apoyo sanitario",dias:-15,resp:"Batería"},
+      {nombre:"Relación nominal de participantes",dias:-3,resp:"Batería"},
+      {nombre:"Parte de la actividad y novedades",dias:2,resp:"Batería"}
+    ]},
+    {id:uid(),nombre:"Ejercicio de tiro",seccion:"S3",hitos:[
+      {nombre:"Propuesta de ejercicio y necesidades",dias:-45,resp:"Batería"},
+      {nombre:"Petición de campo de tiro",dias:-45,resp:"S3"},
+      {nombre:"Petición de munición",dias:-30,resp:"Batería"},
+      {nombre:"Normas de seguridad del ejercicio",dias:-15,resp:"Batería"},
+      {nombre:"Relación nominal y personal habilitado",dias:-7,resp:"Batería"},
+      {nombre:"Revista de material",dias:-3,resp:"Batería"},
+      {nombre:"Parte de consumo de munición",dias:2,resp:"Batería"},
+      {nombre:"Lecciones aprendidas",dias:7,resp:"Batería"}
+    ]},
+    {id:uid(),nombre:"Movimiento de vehículos",seccion:"S3",hitos:[
+      {nombre:"Solicitud de movimiento",dias:-15,resp:"Batería"},
+      {nombre:"Relación de conductores y permisos",dias:-7,resp:"Batería"},
+      {nombre:"Itinerario y paradas previstas",dias:-7,resp:"Batería"},
+      {nombre:"Parte de novedades del movimiento",dias:2,resp:"Batería"}
+    ]},
+    {id:uid(),nombre:"Revisión periódica de seguridad",seccion:"S2",hitos:[
+      {nombre:"Aviso a las unidades implicadas",dias:-15,resp:"S2"},
+      {nombre:"Comprobación de habilitaciones y acreditaciones",dias:-7,resp:"S2"},
+      {nombre:"Informe de resultados",dias:5,resp:"S2"}
+    ]}
+  ];
+}
+
+let db = {v:1,tipos:[],actividades:[],eventos:[],despacho:[],reuniones:[],ui:{}};
+let vista="horizonte";
+let filtroSec="todo";
+let busqueda="";
+let verHechos=false;
+let agrupar=false;        // hitos de actividad: sólo dentro de su checklist
+let abiertas={};          // qué checklists están desplegadas en el horizonte
+let mesVista=new Date();
+let anioVista=new Date().getFullYear();
+
+/* ==================== fechas ==================== */
+const DIAS=["domingo","lunes","martes","miércoles","jueves","viernes","sábado"];
+const DIAS_C=["D","L","M","X","J","V","S"];
+const MESES=["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+const MESES_C=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+
+function hoy(){ const d=new Date(); d.setHours(0,0,0,0); return d; }
+function aFecha(iso){ if(!iso) return null; const p=iso.split("-"); const d=new Date(+p[0],+p[1]-1,+p[2]); d.setHours(0,0,0,0); return d; }
+function aISO(d){
+  const m=String(d.getMonth()+1).padStart(2,"0"), dd=String(d.getDate()).padStart(2,"0");
+  return d.getFullYear()+"-"+m+"-"+dd;
+}
+function sumarDias(iso,n){ const d=aFecha(iso); if(!d) return null; d.setDate(d.getDate()+n); return aISO(d); }
+function dist(iso){ const d=aFecha(iso); if(!d) return null; return Math.round((d-hoy())/86400000); }
+function fechaCorta(iso){ const d=aFecha(iso); if(!d) return ""; return DIAS_C[d.getDay()]+" "+String(d.getDate()).padStart(2,"0")+" "+MESES_C[d.getMonth()]; }
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function edad(iso){ const d=aFecha(iso); if(!d) return 0; return Math.max(0,Math.round((hoy()-d)/86400000)); }
+
+/* ==================== consultas ==================== */
+function actividad(id){ return db.actividades.find(a=>a.id===id)||null; }
+function tipo(id){ return db.tipos.find(t=>t.id===id)||null; }
+
+function eventosVisibles(){
+  return db.eventos.filter(e=>{
+    if(filtroSec!=="todo" && e.seccion!==filtroSec) return false;
+    if(!verHechos && e.hecho) return false;
+    if(busqueda){
+      const a=actividad(e.actividadId);
+      const txt=(e.titulo+" "+(a?a.nombre:"")+" "+(e.resp||"")+" "+(e.notas||"")).toLowerCase();
+      if(!txt.includes(busqueda.toLowerCase())) return false;
+    }
+    return true;
+  }).sort((x,y)=> x.fecha<y.fecha?-1:x.fecha>y.fecha?1:0);
+}
+
+const GRUPOS=[
+  {k:"b0",lab:"Vencido",test:d=>d<0,rojo:true},
+  {k:"b1",lab:"Hoy",test:d=>d===0,rojo:true},
+  {k:"b2",lab:"Próximos 7 días",test:d=>d>=1&&d<=7},
+  {k:"b3",lab:"8 a 15 días",test:d=>d>=8&&d<=15},
+  {k:"b4",lab:"16 a 30 días",test:d=>d>=16&&d<=30},
+  {k:"b5",lab:"31 a 60 días",test:d=>d>=31&&d<=60},
+  {k:"b6",lab:"61 a 90 días",test:d=>d>=61&&d<=90},
+  {k:"b7",lab:"Más allá de 90 días",test:d=>d>90}
+];
+
+/* ==================== render ==================== */
+function render(){
+  const h=hoy();
+  document.getElementById("hoyFecha").textContent = String(h.getDate()).padStart(2,"0")+" "+MESES[h.getMonth()]+" "+h.getFullYear();
+  document.getElementById("hoySem").textContent = DIAS[h.getDay()];
+  renderTally();
+  document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-selected", b.dataset.vista===vista?"true":"false"));
+  const p=document.getElementById("panel");
+  if(vista==="horizonte") p.innerHTML=vistaHorizonte();
+  else if(vista==="mes") p.innerHTML=vistaMes();
+  else if(vista==="reuniones") p.innerHTML=vistaReuniones();
+  else if(vista==="anio") p.innerHTML=vistaAnio();
+  else if(vista==="plantillas") p.innerHTML=vistaPlantillas();
+  else p.innerHTML=vistaAjustes();
+  renderDespacho();
+  const enReu = vista==="reuniones";
+  document.getElementById("despacho").style.display = enReu?"none":"";
+  document.querySelector(".cuerpo").classList.toggle("ancho",enReu);
+  document.body.classList.toggle("en-reu",enReu && !!reuAbierta);   // en plena reunión, toda la pantalla para la hoja
+  if(enReu && reuAbierta) requestAnimationFrame(montarReunion);
+}
+
+function renderTally(){
+  const act=db.eventos.filter(e=>!e.hecho && (filtroSec==="todo"||e.seccion===filtroSec));
+  const conF=act.filter(e=>!e.bolsa && e.fecha);
+  const venc=conF.filter(e=>dist(e.fecha)<0).length;
+  const sem=conF.filter(e=>{const d=dist(e.fecha);return d>=0&&d<=7;}).length;
+  const asap=act.filter(e=>e.bolsa==="asap").length;
+  const sinf=act.filter(e=>e.bolsa==="sinfecha").length +
+    db.actividades.filter(a=>!a.fechaD&&(filtroSec==="todo"||a.seccion===filtroSec)).length;
+  const acts=db.actividades.filter(a=>filtroSec==="todo"||a.seccion===filtroSec).length;
+  document.getElementById("tally").innerHTML=
+    tallyItem(venc,"Vencidos",venc>0?"rojo":"")+
+    tallyItem(asap,"Cuanto antes",asap>0?"rojo":"")+
+    tallyItem(sem,"Próximos 7 días",sem>0?"ambar":"")+
+    tallyItem(sinf,"Sin fecha","")+
+    tallyItem(acts,"Actividades vivas","");
+}
+function tallyItem(n,lab,cls){
+  return '<div><div class="n '+cls+'">'+n+'</div><div class="lab">'+lab+'</div></div>';
+}
+
+function barraFiltros(extra){
+  return '<div class="bar no-print">'+
+    '<div class="seg">'+
+      ['todo','S2','S3'].map(s=>'<button data-sec="'+s+'" aria-pressed="'+(filtroSec===s)+'">'+(s==="todo"?"TODO":s)+'</button>').join("")+
+    '</div>'+
+    '<input type="text" id="buscar" placeholder="Buscar…" value="'+esc(busqueda)+'">'+
+    (extra||"")+
+    '<button class="btn" id="nuevaAct">Nueva actividad</button>'+
+    '<button class="btn ghost" id="nuevoEv">Apunte suelto</button>'+
+    '<button class="btn ghost" id="nuevoAsap">Cuanto antes</button>'+
+  '</div>';
+}
+
+/* ---------- horizonte ---------- */
+function vistaHorizonte(){
+  const evs=eventosVisibles();
+  let html=barraFiltros(
+    '<label class="estado" style="margin-left:4px"><input type="checkbox" id="verHechos" '+(verHechos?"checked":"")+'> Ver completados</label>'+
+    '<label class="estado" style="margin-left:4px" title="Los documentos de una actividad dejan de aparecer sueltos y sólo se ven dentro de su checklist"><input type="checkbox" id="agrupar" '+(agrupar?"checked":"")+'> Sólo dentro de su actividad</label>'
+  );
+  if(!db.actividades.length && !db.eventos.length){
+    return html+'<div class="vacio"><p>Aquí aparecerá todo lo que tienes por delante, de lo más cercano a lo más lejano.</p>'+
+      '<button class="btn" id="nuevaAct2">Dar de alta la primera actividad</button></div>';
+  }
+  const asap=evs.filter(e=>e.bolsa==="asap").sort((x,y)=>(x.creado||"")<(y.creado||"")?-1:1);
+  const sinf=evs.filter(e=>e.bolsa==="sinfecha").sort((x,y)=>(x.creado||"")<(y.creado||"")?-1:1);
+  const actsFil=actividadesFiltradas();
+  const actsSinD=actsFil.filter(a=>!a.fechaD);
+  // una actividad ya pasada y con todo hecho deja de ocupar sitio
+  const actsConD=actsFil.filter(a=>a.fechaD && (dist(a.fechaD)>=0 || progreso(a).pend>0 || verHechos));
+  const conChecklist={}; actsConD.forEach(a=>conChecklist[a.id]=true);
+
+  // el horizonte mezcla, por cercanía, actividades (con su checklist) y apuntes sueltos
+  const conFecha=evs
+    .filter(e=>!e.bolsa && e.fecha && !(agrupar && e.actividadId && conChecklist[e.actividadId]))
+    .map(e=>({f:e.fecha,d:dist(e.fecha),html:filaEvento(e)}))
+    .concat(actsConD.map(a=>({f:a.fechaD,d:dist(a.fechaD),html:filaActividad(a)})))
+    .sort((x,y)=> x.f<y.f?-1:x.f>y.f?1:0);
+
+  if(!conFecha.length && !asap.length && !sinf.length && !actsSinD.length)
+    return html+'<div class="vacio"><p>No hay nada pendiente con ese filtro.</p></div>';
+
+  function seccion(clase,lab,rojo,pista,filas){
+    if(!filas.length) return "";
+    return '<section class="grupo '+clase+'">'+
+      '<div class="grupo-cab"><span class="eyebrow'+(rojo?" rojo":"")+'">'+lab+'</span>'+
+      (pista?'<span class="pista-txt">'+pista+'</span>':'')+
+      '<span class="linea"></span><span class="cuenta">'+filas.length+'</span></div>'+
+      filas.join("")+'</section>';
+  }
+
+  // 1. vencido
+  const venc=conFecha.filter(i=>i.d<0);
+  html+=seccion("b0","Vencido",true,"",venc.map(i=>i.html));
+  // 2. cuanto antes
+  html+=seccion("basap","Cuanto antes",true,"Sin fecha, pero para ya.",asap.map(filaEvento));
+  // 3. resto de tramos con fecha
+  GRUPOS.slice(1).forEach(g=>{
+    const items=conFecha.filter(i=>g.test(i.d));
+    html+=seccion(g.k,g.lab,g.rojo,"",items.map(i=>i.html));
+  });
+  // 4. sin fecha, al fondo pero en pantalla
+  const filasSin=actsSinD.map(filaActividadSinFecha).concat(sinf.map(filaEvento));
+  html+=seccion("bsin","Sin fecha",false,"En el horizonte, esperando fecha. Repásalas los viernes.",filasSin);
+  return html;
+}
+
+function filaEvento(e){
+  const d=dist(e.fecha);
+  const a=actividad(e.actividadId);
+  const dias=edad(e.creado);
+  let etq,pieDist="",claseDist="";
+  const meta=[];
+  if(e.bolsa==="asap"){
+    etq = e.hecho?"✓":(dias===0?"HOY":dias);
+    pieDist = dias===0?"abierto hoy":"d abierto";
+    if(dias>7 && !e.hecho){ claseDist=" viejo"; meta.push('<span class="avisillo">lleva '+dias+' días como urgente: ponle fecha o hazlo</span>'); }
+  }else if(e.bolsa==="sinfecha"){
+    etq = e.hecho?"✓":"—";
+    claseDist=" nada";
+    pieDist = dias===0?"apuntado hoy":"hace "+dias+" d";
+    if(dias>45 && !e.hecho) meta.push('<span class="avisillo">'+dias+' días sin fecha</span>');
+  }else{
+    etq = e.hecho?"✓":(d===0?"HOY":d+" d");
+    pieDist = fechaCorta(e.fecha);
+  }
+  if(a) meta.push(esc(a.nombre));
+  if(e.reunionId){ const r=reunion(e.reunionId); if(r) meta.push("Reunión: "+esc(r.titulo||"sin título")); }
+  if(e.resp) meta.push(esc(e.resp));
+  if(e.offset!=null && a) meta.push("D"+(e.offset<0?e.offset:"+"+e.offset));
+  return '<button class="fila'+(e.hecho?" done":"")+'" data-ev="'+e.id+'">'+
+    '<span class="dist'+claseDist+'">'+etq+'<span class="'+(e.bolsa?"sub":"fecha")+'">'+pieDist+'</span></span>'+
+    '<span><span class="titulo">'+esc(e.titulo)+'</span>'+
+      '<span class="meta"><span class="tag '+(e.seccion==="S2"?"s2":"s3")+'">'+esc(e.seccion)+'</span>'+
+      (meta.length?'<span class="sep">·</span>'+meta.join('<span class="sep">·</span>'):'')+'</span></span>'+
+    '<span class="acc"><span class="check" data-hecho="'+e.id+'" role="button" title="Marcar hecho">'+(e.hecho?"✓":"")+'</span></span>'+
+  '</button>';
+}
+
+function filaActividadSinFecha(a){
+  const t=tipo(a.tipoId);
+  const meta=[];
+  if(t) meta.push(esc(t.nombre));
+  if(a.unidad) meta.push(esc(a.unidad));
+  meta.push('<span class="avisillo">al poner el día D se colocan sus hitos</span>');
+  return '<button class="fila" data-act="'+a.id+'">'+
+    '<span class="dist nada">—<span class="sub">sin día D</span></span>'+
+    '<span><span class="titulo">'+esc(a.nombre)+'</span>'+
+      '<span class="meta"><span class="tag act">ACTIVIDAD</span>'+
+      '<span class="tag '+(a.seccion==="S2"?"s2":"s3")+'">'+esc(a.seccion)+'</span>'+
+      '<span class="sep">·</span>'+meta.join('<span class="sep">·</span>')+'</span></span>'+
+    '<span class="acc"></span>'+
+  '</button>';
+}
+
+/* ---------- checklist de actividad ---------- */
+function hitosDe(a){
+  return db.eventos.filter(e=>e.actividadId===a.id)
+    .sort((x,y)=>{ const fx=x.fecha||"9999-99-99", fy=y.fecha||"9999-99-99"; return fx<fy?-1:fx>fy?1:0; });
+}
+function progreso(a){
+  const h=hitosDe(a);
+  return {total:h.length,hechos:h.filter(e=>e.hecho).length,pend:h.filter(e=>!e.hecho).length};
+}
+function estaAbierta(a){
+  if(abiertas[a.id]!==undefined) return abiertas[a.id];
+  if(!a.fechaD) return false;
+  const d=dist(a.fechaD);
+  return d<=30 && progreso(a).pend>0;   // lo cercano se abre solo; lo lejano, plegado
+}
+function cuandoHito(e){
+  if(e.hecho) return "hecho"+(e.fechaHecho?" "+fechaCorta(e.fechaHecho):"");
+  if(e.bolsa==="asap") return "cuanto antes";
+  if(!e.fecha) return "sin fecha";
+  const d=dist(e.fecha);
+  if(d<0) return fechaCorta(e.fecha)+" · vencido hace "+(-d)+" d";
+  if(d===0) return fechaCorta(e.fecha)+" · HOY";
+  return fechaCorta(e.fecha)+" · en "+d+" d";
+}
+function claseHito(e){
+  if(e.hecho) return " hecho";
+  if(!e.fecha||e.bolsa) return "";
+  const d=dist(e.fecha);
+  return d<0?" vencido":d===0?" hoy":"";
+}
+function checklistHTML(a){
+  const hs=hitosDe(a);
+  let html='<div class="lista">';
+  if(!hs.length){
+    html+='<p class="nota" style="margin:4px 0 2px">'+(a.fechaD
+      ? 'Esta actividad no tiene documentación asociada. Añádela aquí, o escríbela una vez en la plantilla de su tipo y se pondrá sola la próxima vez.'
+      : 'En cuanto le pongas día D se colocan aquí los documentos de su plantilla.')+'</p>';
+  }
+  hs.forEach(e=>{
+    html+='<div class="ck'+claseHito(e)+'">'+
+      '<span class="ck-box" data-hecho="'+e.id+'" role="button" title="Marcar como completado">'+(e.hecho?"✓":"")+'</span>'+
+      '<span class="ck-nom" data-ev="'+e.id+'">'+esc(e.titulo)+
+        (e.resp?'<span class="quien"> · '+esc(e.resp)+'</span>':'')+'</span>'+
+      '<span class="ck-cuando">'+(e.offset!=null?"D"+(e.offset<0?e.offset:"+"+e.offset)+" · ":"")+cuandoHito(e)+'</span>'+
+    '</div>';
+  });
+  html+='<div class="ck-pie no-print">'+
+    '<button data-addhito="'+a.id+'">+ Añadir documento o hito</button>'+
+    '<button data-editact="'+a.id+'">Editar la actividad</button>'+
+  '</div>';
+  return html+'</div>';
+}
+
+function filaActividad(a){
+  const p=progreso(a), abierta=estaAbierta(a), d=dist(a.fechaD), t=tipo(a.tipoId);
+  const meta=[];
+  if(t) meta.push(esc(t.nombre));
+  if(a.unidad) meta.push(esc(a.unidad));
+  if(p.total) meta.push(p.pend?p.pend+(p.pend===1?" documento pendiente":" documentos pendientes"):'<span style="color:var(--hecho)">documentación completa</span>');
+  const pc = p.total?Math.round(p.hechos/p.total*100):0;
+  return '<div class="grupo-item">'+
+    '<div class="fila act" data-actrow="'+a.id+'">'+
+      '<span class="dist">'+(d===0?"HOY":d+" d")+'<span class="fecha">'+fechaCorta(a.fechaD)+'</span></span>'+
+      '<span><span class="titulo">'+esc(a.nombre)+'</span>'+
+        '<span class="meta"><span class="tag act">ACTIVIDAD</span> '+
+        '<span class="tag '+(a.seccion==="S2"?"s2":"s3")+'">'+esc(a.seccion)+'</span>'+
+        (meta.length?'<span class="sep">·</span>'+meta.join('<span class="sep">·</span>'):'')+'</span>'+
+        (p.total?'<span class="progreso"><span style="width:'+pc+'%"></span></span>':'')+
+      '</span>'+
+      '<span class="acc">'+
+        '<span class="conteo'+(p.total&&!p.pend?" todo":"")+'">'+(p.total?p.hechos+"/"+p.total:"—")+'</span>'+
+        '<span class="chevron">'+(abierta?"▾":"▸")+'</span>'+
+      '</span>'+
+    '</div>'+
+    (abierta?checklistHTML(a):"")+
+  '</div>';
+}
+
+function actividadesFiltradas(){
+  return db.actividades.filter(a=>{
+    if(filtroSec!=="todo"&&a.seccion!==filtroSec) return false;
+    if(busqueda){
+      const t=tipo(a.tipoId);
+      const txt=(a.nombre+" "+(t?t.nombre:"")+" "+(a.unidad||"")).toLowerCase();
+      if(!txt.includes(busqueda.toLowerCase())) return false;
+    }
+    return true;
+  });
+}
+
+/* ---------- mes ---------- */
+function vistaMes(){
+  const y=mesVista.getFullYear(), m=mesVista.getMonth();
+  const primero=new Date(y,m,1); const offset=(primero.getDay()+6)%7;
+  const ini=new Date(y,m,1-offset);
+  const evs=eventosVisibles();
+  const actsMes=actividadesFiltradas().filter(a=>a.fechaD);
+  let html=barraFiltros();
+  html+='<div class="mescab no-print"><button class="btn ghost" id="mesPrev">‹</button>'+
+    '<h2>'+MESES[m]+" "+y+'</h2><button class="btn ghost" id="mesNext">›</button>'+
+    '<button class="btn ghost" id="mesHoy">Hoy</button></div>';
+  html+='<div class="rejilla">'+["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"].map(d=>'<div class="dow">'+d+'</div>').join("");
+  const hoyISO=aISO(hoy());
+  for(let i=0;i<42;i++){
+    const d=new Date(ini.getFullYear(),ini.getMonth(),ini.getDate()+i);
+    const iso=aISO(d);
+    const delMes=d.getMonth()===m;
+    const actsDia=actsMes.filter(a=> iso>=a.fechaD && iso<=(a.fechaFin||a.fechaD));
+    const dia=evs.filter(e=>e.fecha===iso);
+    let chips="";
+    actsDia.forEach(a=>{
+      const pr=progreso(a);
+      chips+='<span class="chip act '+(a.seccion==="S2"?"s2":"s3")+'" data-actmodal="'+a.id+'" title="Abrir la checklist de esta actividad">'+
+        esc(a.nombre)+(pr.total?' <span class="cl">'+pr.hechos+'/'+pr.total+'</span>':'')+'</span>';
+    });
+    const hueco=Math.max(1,3-actsDia.length);
+    dia.slice(0,hueco).forEach(e=>{
+      chips+='<span class="chip '+(e.seccion==="S2"?"s2":"s3")+(e.hecho?" done":(iso<hoyISO?" vencido":""))+'">'+esc(e.titulo)+'</span>';
+    });
+    if(dia.length>hueco) chips+='<span class="chip mas">+'+(dia.length-hueco)+' más</span>';
+    html+='<button class="dia'+(delMes?"":" fuera")+(iso===hoyISO?" hoy":"")+'" data-dia="'+iso+'">'+
+      '<span class="num">'+d.getDate()+'</span>'+chips+'</button>';
+  }
+  html+='</div><p class="nota">Las actividades salen en negrita con su cuenta de documentos: púlsalas para abrir la checklist y marcar lo que ya esté hecho. '+
+    'Pulsa un día vacío para añadir un apunte en esa fecha. '+avisoSinFecha()+'</p>';
+  return html;
+}
+
+function avisoSinFecha(){
+  const n=db.eventos.filter(e=>e.bolsa&&!e.hecho&&(filtroSec==="todo"||e.seccion===filtroSec)).length+
+          db.actividades.filter(a=>!a.fechaD&&(filtroSec==="todo"||a.seccion===filtroSec)).length;
+  if(!n) return "";
+  return "Hay "+n+(n===1?" cosa sin fecha que no sale":" cosas sin fecha que no salen")+" en esta vista; están en el horizonte.";
+}
+
+/* ---------- año ---------- */
+function vistaAnio(){
+  let html=barraFiltros();
+  html+='<div class="mescab no-print"><button class="btn ghost" id="anioPrev">‹</button>'+
+    '<h2>'+anioVista+'</h2><button class="btn ghost" id="anioNext">›</button></div>';
+  const acts=db.actividades.filter(a=>{
+    if(filtroSec!=="todo"&&a.seccion!==filtroSec) return false;
+    if(!a.fechaD) return false;
+    return aFecha(a.fechaD).getFullYear()===anioVista ||
+           (a.fechaFin && aFecha(a.fechaFin).getFullYear()===anioVista);
+  }).sort((x,y)=>x.fechaD<y.fechaD?-1:1);
+  if(!acts.length) return html+'<div class="vacio"><p>No hay actividades con día D en '+anioVista+'.</p></div>';
+
+  const ini=new Date(anioVista,0,1), fin=new Date(anioVista,11,31);
+  const total=(fin-ini)/86400000+1;
+  const pct=d=>Math.max(0,Math.min(100,((aFecha(d)-ini)/86400000)/total*100));
+  html+='<div class="anio-cab"><div class="eyebrow">Actividad</div><div class="meses">'+
+    MESES_C.map(m=>'<span>'+m+'</span>').join("")+'</div></div>';
+  const hoyD=hoy();
+  const hoyPct = hoyD.getFullYear()===anioVista ? ((hoyD-ini)/86400000)/total*100 : null;
+
+  acts.forEach(a=>{
+    const p1=pct(a.fechaD), p2=pct(a.fechaFin||a.fechaD);
+    const w=Math.max(0.7,p2-p1+0.3);
+    let marcas="";
+    for(let i=1;i<12;i++) marcas+='<span class="mesline" style="left:'+(i/12*100)+'%"></span>';
+    db.eventos.filter(e=>e.actividadId===a.id&&aFecha(e.fecha).getFullYear()===anioVista).forEach(e=>{
+      marcas+='<span class="hito'+(!e.hecho&&dist(e.fecha)<0?" vencido":"")+'" style="left:'+pct(e.fecha)+'%"></span>';
+    });
+    if(hoyPct!==null) marcas+='<span class="hoyline" style="left:'+hoyPct+'%"></span>';
+    html+='<div class="pista-fila"><div class="pista-nom" title="'+esc(a.nombre)+'">'+esc(a.nombre)+'</div>'+
+      '<button class="pista" data-actmodal="'+a.id+'" title="Abrir la checklist de esta actividad">'+marcas+
+      '<span class="barra '+(a.seccion==="S2"?"s2":"")+'" style="left:'+p1+'%;width:'+w+'%"></span></button></div>';
+  });
+  html+='<p class="nota">Cada barra es una actividad; las marcas verticales son sus hitos y las rojas, los que van vencidos. La línea roja es hoy. '+
+    'Pulsa una barra para abrir su checklist. Sirve para ver choques antes de comprometerte. '+avisoSinFecha()+'</p>';
+  return html;
+}
+
+/* ---------- plantillas ---------- */
+function vistaPlantillas(){
+  let html='<p class="nota" style="margin:0 0 16px;max-width:70ch">Escribe una vez la documentación que exige cada tipo de actividad. '+
+    'Cada vez que des de alta una actividad de ese tipo, sus hitos se colocan solos en el horizonte con la fecha calculada desde el día D. '+
+    'El plazo va en días respecto a D: −15 es D−15, +2 es D+2.</p>';
+  db.tipos.forEach(t=>{
+    html+='<div class="tipo"><div class="tipo-cab">'+
+      '<input value="'+esc(t.nombre)+'" data-tnom="'+t.id+'">'+
+      '<select data-tsec="'+t.id+'" style="border:1px solid var(--plomo);border-radius:2px;padding:5px 8px;background:#fff">'+
+        '<option value="S3"'+(t.seccion==="S3"?" selected":"")+'>S3</option>'+
+        '<option value="S2"'+(t.seccion==="S2"?" selected":"")+'>S2</option></select>'+
+      '<button class="btn ghost" data-taddh="'+t.id+'">Añadir documento</button>'+
+      '<button class="mini" data-tdel="'+t.id+'" title="Eliminar tipo">✕</button></div>'+
+      '<table class="hitos"><thead><tr><th style="width:52%">Documento o hito</th><th style="width:14%">Plazo</th><th style="width:26%">Presenta</th><th></th></tr></thead><tbody>';
+    t.hitos.forEach((h,i)=>{
+      html+='<tr><td><input value="'+esc(h.nombre)+'" data-hn="'+t.id+'|'+i+'"></td>'+
+        '<td><input class="dias" value="'+h.dias+'" data-hd="'+t.id+'|'+i+'"></td>'+
+        '<td><input value="'+esc(h.resp||"")+'" data-hr="'+t.id+'|'+i+'"></td>'+
+        '<td style="text-align:right"><button class="mini" data-hdel="'+t.id+'|'+i+'">✕</button></td></tr>';
+    });
+    if(!t.hitos.length) html+='<tr><td colspan="4" style="color:var(--grafito);padding:10px">Sin documentos. Añade el primero.</td></tr>';
+    html+='</tbody></table></div>';
+  });
+  html+='<button class="btn" id="nuevoTipo">Nuevo tipo de actividad</button>';
+  return html;
+}
+
+/* ---------- ajustes ---------- */
+function vistaAjustes(){
+  const malo = persistencia==="no";
+  let html="";
+  if(malo) html+='<div class="aviso-guardado"><strong>Este navegador no está guardando los datos.</strong> '+
+    'Descarga una copia al terminar cada sesión y vuelve a cargarla al empezar. Suele arreglarse abriendo el archivo con Chrome o Edge.</div>';
+  html+='<div class="estado"><span class="punto'+(malo?" mal":"")+'"></span>'+
+    (malo?"Sin guardado automático":"Se guarda solo en este equipo y este navegador")+'</div>';
+  if(!TINTA.ok) html+='<div class="aviso-guardado" style="margin-top:14px"><strong>Las hojas escritas a mano no se están guardando en este navegador.</strong> Descarga una copia antes de cerrarlo.</div>';
+  html+='<div class="bloque"><h3>Copia de seguridad</h3>'+
+    '<p>El archivo .json contiene todo: plantillas, actividades, apuntes y reuniones con sus hojas escritas a mano. Sirve para llevarlo de un equipo a otro y para no perder nada si se limpia el navegador.</p>'+
+    '<button class="btn" id="exportar">Descargar copia</button> '+
+    '<button class="btn ghost" id="importarBtn">Cargar copia</button>'+
+    '<input type="file" id="importar" accept="application/json,.json" style="display:none">'+
+    '</div>';
+  html+='<div class="bloque"><h3>Imprimir el horizonte</h3>'+
+    '<p>Saca la lista en papel para la reunión de los lunes o para la revisión del viernes.</p>'+
+    '<button class="btn ghost" id="imprimir">Imprimir</button></div>';
+  html+='<div class="bloque"><h3>Empezar de cero</h3>'+
+    '<p>Borra actividades y apuntes. Las plantillas se conservan.</p>'+
+    '<button class="btn peligro" id="vaciar">Borrar actividades y apuntes</button></div>';
+  html+='<div class="bloque"><h3>Cómo usarlo</h3>'+
+    '<p><strong>Actividad</strong> es algo del plan anual con día D: una marcha, un ejercicio de tiro. '+
+    'Basta con darla de alta: la checklist de documentación sale sola, colgada de la actividad, tanto en el horizonte como en el calendario, y se van marcando los documentos según se completan.<br>'+
+    '<strong>Apunte suelto</strong> es lo improvisado: una llamada que devolver, un informe que te acaban de pedir. '+
+    'Puede tener fecha, ser <strong>cuanto antes</strong> o quedarse <strong>sin fecha</strong>.<br>'+
+    'Todo convive en el horizonte, ordenado por lo cerca que está.<br>'+
+    '<strong>Reuniones</strong> es el cuaderno: escribe a mano en la hoja y, conforme salgan acuerdos, pásalos con el panel de la derecha al horizonte o al bloc de despacho. '+
+    'Con un dedo se escribe; con dos se desplaza la hoja. Si la tablet tiene lápiz activo (S Pen), en cuanto lo detecta el dedo pasa a servir solo para desplazar.<br>'+
+    '<strong>Despachar con el jefe</strong> es el bloc de la derecha: los temas que quieras llevarle. '+
+    'Se van tachando conforme los despachas y lo que quede sigue ahí al día siguiente, con los días que lleva esperando.</p>'+
+    '<p style="font-size:13px;color:var(--grafito);max-width:62ch">Lo de «cuanto antes» y lo de «sin fecha» lleva la cuenta de los días que lleva abierto. '+
+    'Cuando un «cuanto antes» pasa de una semana se pone en rojo: a esas alturas ya no es urgente, es un autoengaño. '+
+    'Dale fecha, delégalo o bájalo a «sin fecha».</p></div>';
+  return html;
+}
+
+/* ==================== bloc de despacho ==================== */
+function notas(){ if(!Array.isArray(db.despacho)) db.despacho=[]; return db.despacho; }
+
+function renderDespacho(){
+  const lista=notas();
+  const pend=lista.filter(n=>!n.hecho).length;
+  const h=hoy();
+  document.getElementById("despFecha").textContent=
+    DIAS[h.getDay()]+" "+String(h.getDate()).padStart(2,"0")+" "+MESES[h.getMonth()];
+  const c=document.getElementById("despCuenta");
+  c.textContent = lista.length ? pend+" de "+lista.length : "";
+  c.className = "desp-cuenta"+(pend?" rojo":"");
+  document.getElementById("despLista").innerHTML = lista.length
+    ? lista.map(n=>{
+        const d=edad(n.creado);
+        return '<div class="dp'+(n.hecho?" hecho":"")+'">'+
+          '<button class="dp-box" data-dphecho="'+n.id+'" title="'+(n.hecho?"Volver a dejarlo pendiente":"Marcar como despachado")+'">'+(n.hecho?"✓":"")+'</button>'+
+          '<button class="dp-txt" data-dpedit="'+n.id+'" title="Editar el tema">'+esc(n.texto)+
+            (!n.hecho&&d>0?'<span class="dp-dias">apuntado hace '+d+(d===1?" día":" días")+'</span>':'')+
+          '</button>'+
+          '<button class="dp-x" data-dpdel="'+n.id+'" title="Quitar">×</button>'+
+        '</div>';
+      }).join("")
+    : '<p class="dp-vacio">Nada apuntado todavía. Escribe arriba lo que quieras despachar.</p>';
+  document.getElementById("despLimpiar").style.display = lista.some(n=>n.hecho)?"":"none";
+}
+
+function editarNota(id){
+  const n=notas().find(x=>x.id===id); if(!n) return;
+  const btn=document.querySelector('[data-dpedit="'+id+'"]'); if(!btn) return;
+  const inp=document.createElement("input");
+  inp.type="text"; inp.className="dp-edit"; inp.value=n.texto;
+  btn.replaceWith(inp);
+  inp.focus(); inp.select();
+  let cerrado=false;
+  const fin=(aplicar)=>{
+    if(cerrado) return; cerrado=true;
+    if(aplicar){
+      const v=inp.value.trim();
+      if(v) n.texto=v; else db.despacho=notas().filter(x=>x.id!==id);
+      guardar();
+    }
+    renderDespacho();
+  };
+  inp.addEventListener("keydown",ev=>{
+    if(ev.key==="Enter"){ ev.preventDefault(); fin(true); }
+    else if(ev.key==="Escape"){ ev.stopPropagation(); fin(false); }
+  });
+  inp.addEventListener("blur",()=>fin(true));
+}
+
+document.getElementById("despAlta").addEventListener("submit",ev=>{
+  ev.preventDefault();
+  const inp=document.getElementById("despTexto");
+  const v=inp.value.trim(); if(!v) return;
+  notas().push({id:uid(),texto:v,hecho:false,creado:aISO(hoy()),fechaHecho:null});
+  inp.value=""; guardar(); renderDespacho(); inp.focus();
+});
+
+document.getElementById("despacho").addEventListener("click",ev=>{
+  const t=ev.target;
+  const ok=t.closest("[data-dphecho]");
+  if(ok){
+    const n=notas().find(x=>x.id===ok.dataset.dphecho);
+    if(n){ n.hecho=!n.hecho; n.fechaHecho=n.hecho?aISO(hoy()):null; guardar(); renderDespacho(); }
+    return;
+  }
+  const ed=t.closest("[data-dpedit]");
+  if(ed){ editarNota(ed.dataset.dpedit); return; }
+  const del=t.closest("[data-dpdel]");
+  if(del){ db.despacho=notas().filter(n=>n.id!==del.dataset.dpdel); guardar(); renderDespacho(); return; }
+  if(t.closest("#despLimpiar")){
+    db.despacho=notas().filter(n=>!n.hecho); guardar(); renderDespacho(); return;
+  }
+});
+
+/* ==================== modales ==================== */
+function cerrarModal(){ document.getElementById("modalHost").innerHTML=""; }
+
+function modal(titulo,cuerpo,acciones){
+  document.getElementById("modalHost").innerHTML=
+    '<div class="velo" id="velo"><div class="modal" role="dialog" aria-modal="true">'+
+    '<h3>'+esc(titulo)+'</h3>'+cuerpo+'<div class="acciones">'+acciones+'</div></div></div>';
+  document.getElementById("velo").addEventListener("mousedown",ev=>{ if(ev.target.id==="velo") cerrarModal(); });
+  const f=document.querySelector(".modal input,.modal select,.modal textarea"); if(f) f.focus();
+}
+
+function opcionesTipos(sel){
+  return '<option value="">— sin plantilla —</option>'+
+    db.tipos.map(t=>'<option value="'+t.id+'"'+(t.id===sel?" selected":"")+'>'+esc(t.nombre)+'</option>').join("");
+}
+
+function abrirChecklist(id){
+  const a=actividad(id); if(!a) return;
+  const p=progreso(a), t=tipo(a.tipoId);
+  const cuerpo=
+    '<p class="nota" style="margin:-10px 0 14px">'+
+      '<span class="tag '+(a.seccion==="S2"?"s2":"s3")+'">'+esc(a.seccion)+'</span> '+
+      (t?esc(t.nombre)+' · ':'')+(a.fechaD?'Día D '+fechaCorta(a.fechaD):'sin día D')+
+      (a.fechaFin?' → '+fechaCorta(a.fechaFin):'')+(a.unidad?' · '+esc(a.unidad):'')+'</p>'+
+    (p.total?'<div class="conteo">'+p.hechos+' de '+p.total+' completados</div>'+
+      '<span class="progreso" style="max-width:none;margin:4px 0 12px"><span style="width:'+Math.round(p.hechos/p.total*100)+'%"></span></span>':'')+
+    checklistHTML(a)+
+    (a.notas?'<p class="nota" style="margin-top:12px">'+esc(a.notas)+'</p>':'');
+  modal(a.nombre,cuerpo,'<button class="btn ghost" id="ckEdit">Editar actividad</button><button class="btn" id="ckCerrar">Cerrar</button>');
+  document.getElementById("ckCerrar").onclick=cerrarModal;
+  document.getElementById("ckEdit").onclick=()=>editarActividad(id);
+  document.querySelector(".modal").addEventListener("click",ev=>{
+    const chk=ev.target.closest("[data-hecho]");
+    if(chk){ marcarHecho(chk.dataset.hecho); abrirChecklist(id); render(); return; }
+    const evn=ev.target.closest("[data-ev]");
+    if(evn){ editarEvento(evn.dataset.ev); return; }
+    const add=ev.target.closest("[data-addhito]");
+    if(add){ nuevoHito(id); return; }
+    const ed=ev.target.closest("[data-editact]");
+    if(ed){ editarActividad(id); return; }
+  });
+}
+
+function marcarHecho(evId){
+  const e=db.eventos.find(x=>x.id===evId); if(!e) return;
+  e.hecho=!e.hecho; e.fechaHecho=e.hecho?aISO(hoy()):null;
+  guardar();
+}
+
+// documento suelto que se cuelga de una actividad concreta
+function nuevoHito(actId){
+  const a=actividad(actId);
+  const pre = a && a.fechaD ? sumarDias(a.fechaD,-7) : aISO(hoy());
+  editarEvento(null,pre,null,actId);
+}
+
+function editarActividad(id){
+  const a = id?actividad(id):{id:null,nombre:"",tipoId:"",seccion:"S3",unidad:"",fechaD:aISO(hoy()),fechaFin:"",notas:""};
+  const cuerpo=
+    '<div class="campo"><label>Nombre de la actividad</label><input id="fNombre" value="'+esc(a.nombre)+'" placeholder="Marcha a pie 25 km — Batería A"></div>'+
+    '<div class="dosc">'+
+      '<div class="campo"><label>Tipo</label><select id="fTipo">'+opcionesTipos(a.tipoId)+'</select></div>'+
+      '<div class="campo"><label>Sección</label><select id="fSec"><option value="S3"'+(a.seccion==="S3"?" selected":"")+'>S3 · Operaciones</option><option value="S2"'+(a.seccion==="S2"?" selected":"")+'>S2 · Información y seguridad</option></select></div>'+
+    '</div>'+
+    '<div class="dosc">'+
+      '<div class="campo"><label>Día D (déjalo vacío si aún no la hay)</label><input type="date" id="fD" value="'+esc(a.fechaD)+'"></div>'+
+      '<div class="campo"><label>Fecha fin (opcional)</label><input type="date" id="fFin" value="'+esc(a.fechaFin||"")+'"></div>'+
+    '</div>'+
+    '<div class="campo"><label>Unidad ejecutante</label><input id="fUnidad" value="'+esc(a.unidad||"")+'" placeholder="Batería A"></div>'+
+    '<div class="campo"><label>Notas</label><textarea id="fNotas">'+esc(a.notas||"")+'</textarea></div>'+
+    '<p class="nota" id="pistaTipo"></p>'+
+    '<p class="nota">No hace falta que apuntes ahora la documentación: al guardar, la actividad aparece en el horizonte y en el calendario con su checklist de documentos e hitos, y los vas marcando según los completes. '+
+    'Sin día D, la actividad espera abajo del todo, en la banda «Sin fecha», hasta que se lo pongas.</p>';
+  const acc=(id?'<button class="btn peligro izq" id="mDel">Eliminar</button>':'')+
+    '<button class="btn ghost" id="mCancel">Cancelar</button><button class="btn" id="mOk">Guardar</button>';
+  modal(id?"Editar actividad":"Nueva actividad",cuerpo,acc);
+
+  // la plantilla se adivina del nombre: escribes «Marcha a pie 25 km» y ya sabe qué papeles pedir
+  const inNombre=document.getElementById("fNombre"), inTipo=document.getElementById("fTipo"), pista=document.getElementById("pistaTipo");
+  let tipoTocado=!!a.tipoId;
+  function pintaPista(){
+    const t=tipo(inTipo.value);
+    pista.innerHTML = t
+      ? 'Se aplicará la plantilla <strong>'+esc(t.nombre)+'</strong>: '+t.hitos.length+(t.hitos.length===1?' documento':' documentos')+' en la checklist.'
+      : (db.tipos.length?'Sin plantilla: la actividad saldrá con la checklist vacía y le añades los documentos a mano.':'');
+  }
+  inTipo.addEventListener("change",()=>{ tipoTocado=true; pintaPista(); });
+  inNombre.addEventListener("input",()=>{
+    if(tipoTocado) return;
+    const t=sugerirTipo(inNombre.value);
+    inTipo.value = t?t.id:"";
+    pintaPista();
+  });
+  pintaPista();
+
+  document.getElementById("mCancel").onclick=cerrarModal;
+  const del=document.getElementById("mDel");
+  if(del) del.onclick=()=>{
+    if(!confirm("Se elimina la actividad y todos sus hitos. ¿Seguimos?")) return;
+    db.eventos=db.eventos.filter(e=>e.actividadId!==id);
+    db.actividades=db.actividades.filter(x=>x.id!==id);
+    guardar(); cerrarModal(); render();
+  };
+  document.getElementById("mOk").onclick=()=>{
+    const nombre=document.getElementById("fNombre").value.trim();
+    const fD=document.getElementById("fD").value;
+    if(!nombre){ alert("Ponle un nombre a la actividad."); return; }
+    const datos={
+      nombre:nombre,
+      tipoId:document.getElementById("fTipo").value,
+      seccion:document.getElementById("fSec").value,
+      unidad:document.getElementById("fUnidad").value.trim(),
+      fechaD:fD,
+      fechaFin:document.getElementById("fFin").value,
+      notas:document.getElementById("fNotas").value
+    };
+    let act;
+    if(id){ act=actividad(id); Object.assign(act,datos); }
+    else { act=Object.assign({id:uid()},datos); db.actividades.push(act); }
+    aplicarPlantilla(act);
+    abiertas[act.id]=true;   // recién creada: se ve la checklist sin tener que abrirla
+    guardar(); cerrarModal(); vista="horizonte"; render();
+  };
+}
+
+function norm(t){ return String(t||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,""); }
+
+function sugerirTipo(nombre){
+  const n=norm(nombre); if(n.length<3) return null;
+  let mejor=null, mejorP=0;
+  db.tipos.forEach(t=>{
+    const pal=norm(t.nombre).split(/\s+/).filter(x=>x.length>2);
+    if(!pal.length) return;
+    const aciertos=pal.filter(x=>n.indexOf(x)>=0).length;
+    const punt=aciertos/pal.length;
+    if(aciertos && punt>mejorP){ mejorP=punt; mejor=t; }
+  });
+  return mejorP>=0.5?mejor:null;
+}
+
+function aplicarPlantilla(act){
+  const t=tipo(act.tipoId); if(!t || !act.fechaD) return;
+  t.hitos.forEach(h=>{
+    const yaEsta=db.eventos.some(e=>e.actividadId===act.id && e.offset===h.dias && e.titulo===h.nombre);
+    if(yaEsta) return;
+    db.eventos.push({
+      id:uid(),titulo:h.nombre,fecha:sumarDias(act.fechaD,h.dias),
+      seccion:act.seccion,resp:h.resp||act.unidad||"",actividadId:act.id,
+      offset:h.dias,hecho:false,notas:"",bolsa:null,creado:aISO(hoy())
+    });
+  });
+  // reubica los hitos de plantilla si cambió el día D
+  db.eventos.forEach(e=>{
+    if(e.actividadId===act.id && e.offset!=null && !e.hecho) e.fecha=sumarDias(act.fechaD,e.offset);
+  });
+}
+
+function editarEvento(id,fechaPre,bolsaPre,actPre){
+  const aPre = actPre?actividad(actPre):null;
+  const e = id?db.eventos.find(x=>x.id===id):{id:null,titulo:"",fecha:bolsaPre?"":(fechaPre||aISO(hoy())),
+    seccion:aPre?aPre.seccion:"S3",resp:aPre?(aPre.unidad||""):"",actividadId:actPre||"",notas:"",hecho:false,offset:null,bolsa:bolsaPre||null};
+  let cuando = e.bolsa || "fecha";
+  const cuerpo=
+    '<div class="campo"><label>Qué es</label><input id="gTit" value="'+esc(e.titulo)+'" placeholder="Enviar informe de seguridad al escalón superior"></div>'+
+    '<div class="campo"><label>Cuándo</label><div class="seg" id="gCuando">'+
+      '<button type="button" data-cuando="fecha">Con fecha</button>'+
+      '<button type="button" data-cuando="asap">Cuanto antes</button>'+
+      '<button type="button" data-cuando="sinfecha">Sin fecha</button>'+
+    '</div></div>'+
+    '<div class="dosc">'+
+      '<div class="campo" id="gCampoFecha"><label>Fecha</label><input type="date" id="gFecha" value="'+esc(e.fecha)+'"></div>'+
+      '<div class="campo"><label>Sección</label><select id="gSec"><option value="S3"'+(e.seccion==="S3"?" selected":"")+'>S3 · Operaciones</option><option value="S2"'+(e.seccion==="S2"?" selected":"")+'>S2 · Información y seguridad</option></select></div>'+
+    '</div>'+
+    '<div class="dosc">'+
+      '<div class="campo"><label>Responsable</label><input id="gResp" value="'+esc(e.resp||"")+'" placeholder="Batería A"></div>'+
+      '<div class="campo"><label>Actividad asociada</label><select id="gAct"><option value="">— ninguna —</option>'+
+        db.actividades.map(a=>'<option value="'+a.id+'"'+(a.id===e.actividadId?" selected":"")+'>'+esc(a.nombre)+'</option>').join("")+
+      '</select></div>'+
+    '</div>'+
+    '<div class="campo"><label>Notas</label><textarea id="gNotas">'+esc(e.notas||"")+'</textarea></div>';
+  const acc=(id?'<button class="btn peligro izq" id="gDel">Eliminar</button>':'')+
+    '<button class="btn ghost" id="gCancel">Cancelar</button><button class="btn" id="gOk">Guardar</button>';
+  modal(id?"Editar apunte":"Apunte suelto",cuerpo,acc);
+
+  const seg=document.getElementById("gCuando");
+  function pintaCuando(){
+    seg.querySelectorAll("[data-cuando]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.cuando===cuando));
+    document.getElementById("gCampoFecha").style.display = cuando==="fecha"?"":"none";
+  }
+  seg.addEventListener("click",ev2=>{
+    const b=ev2.target.closest("[data-cuando]"); if(!b) return;
+    cuando=b.dataset.cuando; pintaCuando();
+  });
+  pintaCuando();
+
+  document.getElementById("gCancel").onclick=cerrarModal;
+  const del=document.getElementById("gDel");
+  if(del) del.onclick=()=>{ db.eventos=db.eventos.filter(x=>x.id!==id); guardar(); cerrarModal(); render(); };
+  document.getElementById("gOk").onclick=()=>{
+    const tit=document.getElementById("gTit").value.trim();
+    const f=document.getElementById("gFecha").value;
+    if(!tit){ alert("Escribe de qué se trata."); return; }
+    if(cuando==="fecha" && !f){ alert("Falta la fecha. Si aún no la tienes, elige «Cuanto antes» o «Sin fecha»."); return; }
+    const datos={titulo:tit,
+      fecha: cuando==="fecha"?f:"",
+      bolsa: cuando==="fecha"?null:cuando,
+      seccion:document.getElementById("gSec").value,
+      resp:document.getElementById("gResp").value.trim(),
+      actividadId:document.getElementById("gAct").value,
+      notas:document.getElementById("gNotas").value};
+    // si cuelga de una actividad con día D, se guarda su plazo para que siga al día D si éste se mueve
+    const actAsoc=actividad(datos.actividadId);
+    datos.offset = (actAsoc && actAsoc.fechaD && datos.fecha)
+      ? Math.round((aFecha(datos.fecha)-aFecha(actAsoc.fechaD))/86400000) : null;
+    if(id) Object.assign(db.eventos.find(x=>x.id===id),datos);
+    else db.eventos.push(Object.assign({id:uid(),hecho:false,creado:aISO(hoy())},datos));
+    guardar(); cerrarModal(); render();
+  };
+}
+
+/* ==================== eventos de interfaz ==================== */
+document.querySelectorAll("nav.tabs button").forEach(b=>{
+  b.addEventListener("click",()=>{ vista=b.dataset.vista; render(); });
+});
+
+document.getElementById("panel").addEventListener("click",ev=>{
+  const t=ev.target;
+  if(vista==="reuniones" && clickReuniones(ev)) return;
+
+  const secBtn=t.closest("[data-sec]");
+  if(secBtn){ filtroSec=secBtn.dataset.sec; render(); return; }
+
+  if(t.closest("#nuevaAct")||t.closest("#nuevaAct2")){ editarActividad(null); return; }
+  if(t.closest("#nuevoEv")){ editarEvento(null); return; }
+  if(t.closest("#nuevoAsap")){ editarEvento(null,null,"asap"); return; }
+
+  const chk=t.closest("[data-hecho]");
+  if(chk){
+    ev.stopPropagation();
+    marcarHecho(chk.dataset.hecho);
+    render(); return;
+  }
+  const addh=t.closest("[data-addhito]");
+  if(addh){ nuevoHito(addh.dataset.addhito); return; }
+
+  const eact=t.closest("[data-editact]");
+  if(eact){ editarActividad(eact.dataset.editact); return; }
+
+  const arow=t.closest("[data-actrow]");
+  if(arow){
+    const a=actividad(arow.dataset.actrow);
+    if(a) abiertas[a.id]=!estaAbierta(a);
+    render(); return;
+  }
+  const cal=t.closest("[data-actmodal]");
+  if(cal){ ev.stopPropagation(); abrirChecklist(cal.dataset.actmodal); return; }
+
+  const fila=t.closest("[data-ev]");
+  if(fila){ editarEvento(fila.dataset.ev); return; }
+
+  const dia=t.closest("[data-dia]");
+  if(dia){ editarEvento(null,dia.dataset.dia); return; }
+
+  const pista=t.closest("[data-act]");
+  if(pista){ editarActividad(pista.dataset.act); return; }
+
+  if(t.closest("#mesPrev")){ mesVista=new Date(mesVista.getFullYear(),mesVista.getMonth()-1,1); render(); return; }
+  if(t.closest("#mesNext")){ mesVista=new Date(mesVista.getFullYear(),mesVista.getMonth()+1,1); render(); return; }
+  if(t.closest("#mesHoy")){ mesVista=new Date(); render(); return; }
+  if(t.closest("#anioPrev")){ anioVista--; render(); return; }
+  if(t.closest("#anioNext")){ anioVista++; render(); return; }
+
+  if(t.closest("#nuevoTipo")){
+    db.tipos.push({id:uid(),nombre:"Nuevo tipo de actividad",seccion:"S3",hitos:[]});
+    guardar(); render(); return;
+  }
+  const taddh=t.closest("[data-taddh]");
+  if(taddh){ tipo(taddh.dataset.taddh).hitos.push({nombre:"",dias:-15,resp:""}); guardar(); render(); return; }
+  const tdel=t.closest("[data-tdel]");
+  if(tdel){
+    if(!confirm("Se elimina el tipo y su lista de documentos. Las actividades ya creadas no se tocan.")) return;
+    db.tipos=db.tipos.filter(x=>x.id!==tdel.dataset.tdel); guardar(); render(); return;
+  }
+  const hdel=t.closest("[data-hdel]");
+  if(hdel){
+    const p=hdel.dataset.hdel.split("|"); tipo(p[0]).hitos.splice(+p[1],1); guardar(); render(); return;
+  }
+
+  if(t.closest("#exportar")){ exportar(); return; }
+  if(t.closest("#importarBtn")){ document.getElementById("importar").click(); return; }
+  if(t.closest("#imprimir")){ vista="horizonte"; render(); setTimeout(()=>window.print(),80); return; }
+  if(t.closest("#vaciar")){
+    if(!confirm("Se borran todas las actividades y apuntes. Las plantillas se conservan. ¿Seguimos?")) return;
+    db.actividades=[]; db.eventos=[]; guardar(); render(); return;
+  }
+});
+
+document.getElementById("panel").addEventListener("input",ev=>{
+  const t=ev.target;
+  if(t.dataset.rmeta){
+    const r=reunion(reuAbierta); if(r){ r[t.dataset.rmeta]=t.value; guardar(); }
+    return;
+  }
+  if(t.id==="buscar"){ busqueda=t.value; const pos=t.selectionStart; render();
+    const nb=document.getElementById("buscar"); if(nb){ nb.focus(); nb.setSelectionRange(pos,pos); } return; }
+  if(t.dataset.tnom){ tipo(t.dataset.tnom).nombre=t.value; guardar(); renderTally(); return; }
+  if(t.dataset.hn){ const p=t.dataset.hn.split("|"); tipo(p[0]).hitos[+p[1]].nombre=t.value; guardar(); return; }
+  if(t.dataset.hd){ const p=t.dataset.hd.split("|"); tipo(p[0]).hitos[+p[1]].dias=parseInt(t.value,10)||0; guardar(); return; }
+  if(t.dataset.hr){ const p=t.dataset.hr.split("|"); tipo(p[0]).hitos[+p[1]].resp=t.value; guardar(); return; }
+});
+
+document.getElementById("panel").addEventListener("change",ev=>{
+  const t=ev.target;
+  if(t.id==="verHechos"){ verHechos=t.checked; render(); return; }
+  if(t.id==="agrupar"){ agrupar=t.checked; db.ui=db.ui||{}; db.ui.agrupar=agrupar; guardar(); render(); return; }
+  if(t.dataset.tsec){ tipo(t.dataset.tsec).seccion=t.value; guardar(); return; }
+  if(t.id==="importar" && t.files && t.files[0]){
+    const fr=new FileReader();
+    fr.onload=()=>{
+      try{
+        const d=JSON.parse(fr.result);
+        if(!d || !Array.isArray(d.eventos)) throw new Error("formato");
+        const tin=d.tinta; delete d.tinta;
+        db=Object.assign({v:1,tipos:[],actividades:[],eventos:[],despacho:[],reuniones:[],ui:{}},d);
+        if(tin) Object.keys(tin).forEach(k=>TINTA.set(k,tin[k]));
+        reuAbierta=null;
+        db.ui=db.ui||{}; agrupar=!!db.ui.agrupar; abiertas={};
+        guardar(); render();
+        alert("Copia cargada: "+db.actividades.length+" actividades y "+db.eventos.length+" apuntes.");
+      }catch(err){ alert("Ese archivo no es una copia válida de Horizonte."); }
+    };
+    fr.readAsText(t.files[0]);
+  }
+});
+
+document.addEventListener("keydown",ev=>{ if(ev.key==="Escape") cerrarModal(); });
+
+async function exportar(){
+  const tinta=await TINTA.todo();
+  const blob=new Blob([JSON.stringify(Object.assign({},db,{tinta:tinta}))],{type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="horizonte-"+aISO(hoy())+".json";
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+
+/* ==================== reuniones: cuaderno a mano ==================== */
+const ALTO=1414;              // hoja A4 en unidades lógicas (ancho 1000)
+const COLORES=[["#16201C","Negro"],["#1F4E9C","Azul"],["#9E2B1E","Rojo"],["#2E6B58","Verde"]];
+const GROSORES=[[2,"Fina",5],[4,"Media",8],[7,"Gruesa",11]];
+const FONDOS={liso:"Liso",pautado:"Pautado",cuadricula:"Cuadrícula"};
+
+let reuAbierta=null, tinta=null, hist={u:[],r:[]};
+let reuHerr="pluma", reuColor="#16201C", reuGrosor=4, rCuando="fecha";
+
+// las hojas pesan: van en IndexedDB, aparte del resto de datos
+const TINTA={
+  db:null, mem:{}, ok:true,
+  abrir(){
+    if(this.db) return Promise.resolve(this.db);
+    return new Promise(res=>{
+      try{
+        const r=indexedDB.open("horizonte-tinta",1);
+        r.onupgradeneeded=()=>r.result.createObjectStore("t");
+        r.onsuccess=()=>{ this.db=r.result; res(this.db); };
+        r.onerror=()=>{ this.ok=false; res(null); };
+      }catch(e){ this.ok=false; res(null); }
+    });
+  },
+  async get(k){
+    const d=await this.abrir(); if(!d) return this.mem[k]||null;
+    return new Promise(res=>{ try{ const q=d.transaction("t").objectStore("t").get(k);
+      q.onsuccess=()=>res(q.result||null); q.onerror=()=>res(this.mem[k]||null);}catch(e){res(this.mem[k]||null);} });
+  },
+  async set(k,v){
+    this.mem[k]=v;
+    const d=await this.abrir(); if(!d) return false;
+    return new Promise(res=>{ try{ const tx=d.transaction("t","readwrite"); tx.objectStore("t").put(v,k);
+      tx.oncomplete=()=>res(true); tx.onerror=()=>{ this.ok=false; res(false); };}catch(e){ this.ok=false; res(false);} });
+  },
+  async del(k){
+    delete this.mem[k];
+    const d=await this.abrir(); if(!d) return;
+    try{ d.transaction("t","readwrite").objectStore("t").delete(k); }catch(e){}
+  },
+  async todo(){
+    const d=await this.abrir(); if(!d) return Object.assign({},this.mem);
+    return new Promise(res=>{ try{
+      const st=d.transaction("t").objectStore("t"), out={};
+      const q=st.openCursor();
+      q.onsuccess=()=>{ const c=q.result; if(c){ out[c.key]=c.value; c.continue(); } else res(out); };
+      q.onerror=()=>res(Object.assign({},this.mem));
+    }catch(e){ res(Object.assign({},this.mem)); } });
+  }
+};
+
+function reunion(id){ return (db.reuniones||[]).find(r=>r.id===id)||null; }
+function acuerdosDe(id){
+  return {
+    evs:db.eventos.filter(e=>e.reunionId===id).sort((a,b)=>(a.creado||"")<(b.creado||"")?-1:1),
+    desp:notas().filter(n=>n.reunionId===id)
+  };
+}
+
+/* ---------- vistas ---------- */
+function vistaReuniones(){ return reuAbierta && tinta ? editorReunion() : listaReuniones(); }
+
+function listaReuniones(){
+  let html='<div class="bar no-print"><button class="btn" data-rnueva>Nueva reunión</button>'+
+    '<span class="nota" style="margin:0">Las hojas se guardan solo en esta tablet.</span></div>';
+  const rs=[...db.reuniones].sort((a,b)=> a.fecha<b.fecha?1:a.fecha>b.fecha?-1:((a.creado||"")<(b.creado||"")?1:-1));
+  if(!rs.length) return html+'<div class="vacio"><p>Aquí quedan las notas de tus reuniones, escritas a mano, '+
+    'con los acuerdos que salgan pasados directamente al horizonte o al bloc de despacho.</p>'+
+    '<button class="btn" data-rnueva>Empezar la primera reunión</button></div>';
+  rs.forEach(r=>{
+    const ac=acuerdosDe(r.id);
+    const tot=ac.evs.length+ac.desp.length;
+    const pend=ac.evs.filter(e=>!e.hecho).length+ac.desp.filter(n=>!n.hecho).length;
+    const d=aFecha(r.fecha);
+    const meta=[];
+    if(r.asistentes) meta.push(esc(r.asistentes));
+    meta.push((r.paginas||1)+((r.paginas||1)===1?" hoja":" hojas"));
+    meta.push(tot?(pend?pend+" de "+tot+" acuerdos pendientes":'<span style="color:var(--hecho)">acuerdos cerrados</span>'):"sin acuerdos");
+    html+='<button class="fila" data-rabrir="'+r.id+'">'+
+      '<span class="dist" style="font-size:22px">'+(d?String(d.getDate()).padStart(2,"0"):"—")+
+        '<span class="fecha">'+(d?MESES_C[d.getMonth()]+" "+d.getFullYear():"")+'</span></span>'+
+      '<span><span class="titulo">'+esc(r.titulo||"Reunión sin título")+'</span>'+
+        '<span class="meta"><span class="tag '+(r.seccion==="S2"?"s2":"s3")+'">'+esc(r.seccion)+'</span>'+
+        '<span class="sep">·</span>'+meta.join('<span class="sep">·</span>')+'</span></span>'+
+      '<span class="acc"><span class="conteo'+(tot&&!pend?" todo":"")+'">'+(tot?(tot-pend)+"/"+tot:"")+'</span></span>'+
+    '</button>';
+  });
+  return html;
+}
+
+function barraHTML(){
+  const b=(attr,pressed,txt,title)=>'<button type="button" class="rb" '+attr+' aria-pressed="'+pressed+'" title="'+title+'">'+txt+'</button>';
+  let h='<div class="reu-barra no-print" id="reuBarra">';
+  h+=b('data-rtool="pluma"',reuHerr==="pluma","✎ Pluma","Escribir");
+  h+=b('data-rtool="goma"',reuHerr==="goma","⌫ Goma","Borrar trazos enteros");
+  h+='<span class="reu-sep"></span>';
+  GROSORES.forEach(g=>{ h+=b('data-rgrosor="'+g[0]+'"',reuHerr==="pluma"&&reuGrosor===g[0],
+    '<span class="pt" style="width:'+g[2]+'px;height:'+g[2]+'px"></span>',"Trazo "+g[1].toLowerCase()); });
+  h+='<span class="reu-sep"></span>';
+  COLORES.forEach(c=>{ h+='<button type="button" class="rb col" data-rcolor="'+c[0]+'" aria-pressed="'+(reuHerr==="pluma"&&reuColor===c[0])+'" title="'+c[1]+'">'+
+    '<span style="background:'+c[0]+'"></span></button>'; });
+  h+='<span class="reu-sep"></span>';
+  h+=b('data-rundo',false,"↶","Deshacer")+b('data-rredo',false,"↷","Rehacer");
+  h+=b('data-rfondo',false,FONDOS[tinta.fondo]||"Pautado","Cambiar el fondo de las hojas");
+  h+=b('data-rpdf',false,"PDF","Imprimir o guardar como PDF");
+  h+='<button type="button" class="rb solo-estrecho" data-racuerdos>Acuerdos ↓</button>';
+  return h+'</div>';
+}
+
+function editorReunion(){
+  const r=reunion(reuAbierta);
+  let h='<div class="reu-cab no-print">'+
+    '<button class="btn ghost" data-rcerrar>‹ Reuniones</button>'+
+    '<input class="reu-tit" data-rmeta="titulo" value="'+esc(r.titulo)+'" placeholder="Asunto de la reunión" aria-label="Asunto">'+
+    '<div class="reu-campos">'+
+      '<input type="date" data-rmeta="fecha" value="'+esc(r.fecha)+'" aria-label="Fecha">'+
+      '<select data-rmeta="seccion" aria-label="Sección"><option value="S3"'+(r.seccion==="S3"?" selected":"")+'>S3 · Operaciones</option>'+
+        '<option value="S2"'+(r.seccion==="S2"?" selected":"")+'>S2 · Información y seguridad</option></select>'+
+      '<input class="asis" data-rmeta="asistentes" value="'+esc(r.asistentes||"")+'" placeholder="Asistentes" aria-label="Asistentes">'+
+      '<button class="btn peligro" data-rborrar title="Eliminar la reunión">Eliminar</button>'+
+    '</div></div>';
+  h+='<div class="reu-cuerpo"><div class="reu-hoja">'+barraHTML()+'<div id="reuPags">';
+  tinta.paginas.forEach((pg,i)=>{
+    h+='<div class="reu-pag"><canvas data-rpage="'+i+'"></canvas>'+
+      '<span class="reu-num">'+(i+1)+' / '+tinta.paginas.length+'</span>'+
+      '<button class="mini reu-delpag no-print" data-rdelpag="'+i+'" title="Quitar esta hoja">✕</button></div>';
+  });
+  h+='</div><button class="btn ghost reu-mas no-print" data-rpag>+ Hoja nueva</button></div>'+
+    '<aside class="reu-acuerdos" id="reuAcuerdos">'+acuerdosHTML(r)+'</aside></div>';
+  return h;
+}
+
+function acuerdosHTML(r){
+  const pref=sumarDias(r.fecha||aISO(hoy()),7)||aISO(hoy());
+  return '<div class="eyebrow">Acuerdos y tareas</div>'+
+    '<p class="nota" style="margin:4px 0 10px">Lo que salga de la reunión, pásalo aquí: entra en el horizonte o en el bloc de despacho.</p>'+
+    '<textarea id="rAcTxt" rows="2" placeholder="Qué se ha acordado o qué hay que hacer"></textarea>'+
+    '<div class="seg" id="rAcCuando">'+
+      [["fecha","Con fecha"],["asap","Cuanto antes"],["sinfecha","Sin fecha"]].map(c=>
+        '<button type="button" data-rcuando="'+c[0]+'" aria-pressed="'+(rCuando===c[0])+'">'+c[1]+'</button>').join("")+
+    '</div>'+
+    '<input type="date" id="rAcFecha" value="'+pref+'" style="'+(rCuando==="fecha"?"":"display:none")+'" aria-label="Fecha">'+
+    '<input id="rAcResp" placeholder="Responsable (opcional)" aria-label="Responsable">'+
+    '<div class="reu-ac-btns"><button type="button" class="btn" data-rach>Al horizonte</button>'+
+      '<button type="button" class="btn ghost" data-racd>Al despacho</button></div>'+
+    '<div id="reuAcList">'+listaAcuerdos(r.id)+'</div>';
+}
+
+function listaAcuerdos(id){
+  const ac=acuerdosDe(id);
+  if(!ac.evs.length && !ac.desp.length) return '<p class="dp-vacio">Todavía no hay acuerdos de esta reunión.</p>';
+  let h='';
+  ac.evs.forEach(e=>{
+    h+='<div class="ck apil'+claseHito(e)+'">'+
+      '<span class="ck-box" data-rhecho="'+e.id+'" role="button" title="Marcar como hecho">'+(e.hecho?"✓":"")+'</span>'+
+      '<span class="ck-nom" data-ev="'+e.id+'">'+esc(e.titulo)+(e.resp?'<span class="quien"> · '+esc(e.resp)+'</span>':'')+'</span>'+
+      '<span class="ck-cuando">'+cuandoHito(e)+'</span></div>';
+  });
+  ac.desp.forEach(n=>{
+    h+='<div class="ck apil'+(n.hecho?" hecho":"")+'">'+
+      '<span class="ck-box" data-rdphecho="'+n.id+'" role="button" title="Marcar como despachado">'+(n.hecho?"✓":"")+'</span>'+
+      '<span class="ck-nom">'+esc(n.texto)+'</span>'+
+      '<span class="ck-cuando">'+(n.hecho?"despachado":"para despachar con el jefe")+'</span></div>';
+  });
+  return h;
+}
+function renderAcuerdos(){ const el=document.getElementById("reuAcList"); if(el) el.innerHTML=listaAcuerdos(reuAbierta); }
+function pintarBarra(){ const el=document.getElementById("reuBarra"); if(el) el.outerHTML=barraHTML(); }
+
+/* ---------- abrir, cerrar, guardar ---------- */
+async function abrirReunion(id){
+  const t=await TINTA.get(id);
+  tinta = t && Array.isArray(t.paginas) && t.paginas.length ? t : {fondo:"pautado",paginas:[{trazos:[]}]};
+  if(!FONDOS[tinta.fondo]) tinta.fondo="pautado";
+  reuAbierta=id; hist={u:[],r:[]};
+  render(); window.scrollTo(0,0); pedirWakeLock();
+}
+async function cerrarReunion(){
+  if(reuAbierta && tinta){ clearTimeout(tintaPend); await TINTA.set(reuAbierta,tinta); }
+  reuAbierta=null; tinta=null; soltarWakeLock(); render();
+}
+let tintaPend=null;
+function guardarTinta(){
+  const id=reuAbierta, t=tinta, r=reunion(id);
+  if(r && r.paginas!==t.paginas.length){ r.paginas=t.paginas.length; guardar(); }
+  clearTimeout(tintaPend);
+  tintaPend=setTimeout(()=>TINTA.set(id,t),400);
+}
+function guardarPrefs(){ db.ui=db.ui||{}; db.ui.reu={herr:reuHerr,color:reuColor,grosor:reuGrosor}; guardar(); }
+
+// que la pantalla no se apague a mitad de reunión
+let wakeLock=null;
+async function pedirWakeLock(){ try{ if(navigator.wakeLock && reuAbierta && !wakeLock){ wakeLock=await navigator.wakeLock.request("screen"); wakeLock.addEventListener("release",()=>{ wakeLock=null; }); } }catch(e){} }
+function soltarWakeLock(){ try{ if(wakeLock) wakeLock.release(); }catch(e){} wakeLock=null; }
+document.addEventListener("visibilitychange",()=>{
+  if(document.visibilityState==="visible") pedirWakeLock();
+  else if(reuAbierta && tinta){ clearTimeout(tintaPend); TINTA.set(reuAbierta,tinta); }
+});
+
+/* ---------- dibujo ---------- */
+function dibujarTrazo(ctx,t){
+  const p=t.p;
+  ctx.strokeStyle=t.c; ctx.fillStyle=t.c; ctx.lineWidth=t.w; ctx.lineCap="round"; ctx.lineJoin="round";
+  if(p.length<=2){ ctx.beginPath(); ctx.arc(p[0],p[1],t.w/2,0,Math.PI*2); ctx.fill(); return; }
+  ctx.beginPath(); ctx.moveTo(p[0],p[1]);
+  for(let i=2;i<p.length-2;i+=2){ ctx.quadraticCurveTo(p[i],p[i+1],(p[i]+p[i+2])/2,(p[i+1]+p[i+3])/2); }
+  ctx.lineTo(p[p.length-2],p[p.length-1]); ctx.stroke();
+}
+function dibujarHoja(ctx,s,pg,fondo){
+  ctx.setTransform(s,0,0,s,0,0);
+  ctx.fillStyle="#fff"; ctx.fillRect(0,0,1000,ALTO);
+  ctx.lineWidth=1.2;
+  if(fondo==="pautado"){
+    ctx.strokeStyle="#D3DAD4"; ctx.beginPath();
+    for(let y=130;y<ALTO-40;y+=46){ ctx.moveTo(0,y); ctx.lineTo(1000,y); } ctx.stroke();
+    ctx.strokeStyle="#E8C9C4"; ctx.beginPath(); ctx.moveTo(84,0); ctx.lineTo(84,ALTO); ctx.stroke();
+  }else if(fondo==="cuadricula"){
+    ctx.strokeStyle="#E1E6E1"; ctx.beginPath();
+    for(let x=40;x<1000;x+=40){ ctx.moveTo(x,0); ctx.lineTo(x,ALTO); }
+    for(let y=40;y<ALTO;y+=40){ ctx.moveTo(0,y); ctx.lineTo(1000,y); } ctx.stroke();
+  }
+  pg.trazos.forEach(t=>dibujarTrazo(ctx,t));
+}
+function lienzo(i){ return document.querySelector('canvas[data-rpage="'+i+'"]'); }
+function pintarPagina(i){
+  const cv=lienzo(i); if(!cv||!tinta||!tinta.paginas[i]) return;
+  dibujarHoja(cv.getContext("2d"),cv.width/1000,tinta.paginas[i],tinta.fondo);
+}
+function montarReunion(){
+  if(!tinta) return;
+  const dpr=Math.min(window.devicePixelRatio||1,2);
+  document.querySelectorAll("canvas[data-rpage]").forEach(cv=>{
+    const w=cv.clientWidth; if(!w) return;
+    cv.width=Math.round(w*dpr); cv.height=Math.round(w*ALTO/1000*dpr);
+    pintarPagina(+cv.dataset.rpage);
+  });
+}
+let reajuste=null;
+window.addEventListener("resize",()=>{ clearTimeout(reajuste); reajuste=setTimeout(()=>{ if(vista==="reuniones"&&reuAbierta) montarReunion(); },150); });
+
+/* ---------- lápiz, dedo y palma ---------- */
+const punteros=new Map();
+let trazo=null, trazoPtr=null, trazoPag=0, trazoT0=0, goma=null, desplazando=null, vioLapiz=false;
+
+function posEn(cv,x,y){ const r=cv.getBoundingClientRect(); return [Math.round((x-r.left)/r.width*1000), Math.round((y-r.top)/r.height*ALTO)]; }
+function dedos(){ let n=0,s=0; punteros.forEach(p=>{ if(p.t==="touch"){ n++; s+=p.y; } }); return {n:n,y:n?s/n:0}; }
+
+function cancelarTrazo(){
+  const pg=tinta.paginas[trazoPag], i=pg.trazos.indexOf(trazo);
+  if(i>=0) pg.trazos.splice(i,1);
+  trazo=null; trazoPtr=null; pintarPagina(trazoPag);
+}
+function terminarTrazo(){
+  hist.u.push({t:"add",pag:trazoPag,tr:trazo}); hist.r=[];
+  trazo=null; trazoPtr=null; guardarTinta();
+}
+function terminarGoma(){
+  if(goma.items.length){ hist.u.push({t:"del",pag:goma.pag,items:goma.items}); hist.r=[]; guardarTinta(); }
+  goma=null;
+}
+function borrarEn(i,x,y){
+  const pg=tinta.paginas[i]; let cambio=false;
+  for(let k=pg.trazos.length-1;k>=0;k--){
+    const t=pg.trazos[k], R=14+t.w, p=t.p;
+    for(let j=0;j<p.length;j+=2){
+      const dx=p[j]-x, dy=p[j+1]-y;
+      if(dx*dx+dy*dy<R*R){ goma.items.push({i:k,tr:t}); pg.trazos.splice(k,1); cambio=true; break; }
+    }
+  }
+  if(cambio) pintarPagina(i);
+}
+
+document.addEventListener("pointerdown",ev=>{
+  const cv=ev.target.closest && ev.target.closest("canvas[data-rpage]"); if(!cv||!tinta) return;
+  if(ev.pointerType==="pen") vioLapiz=true;
+  if(ev.pointerType==="mouse" && ev.button!==0) return;
+  ev.preventDefault();
+  punteros.set(ev.pointerId,{x:ev.clientX,y:ev.clientY,t:ev.pointerType});
+  if(ev.pointerType==="touch"){
+    const d=dedos();
+    // con S Pen el dedo solo desplaza; sin él, dos dedos desplazan
+    if(vioLapiz || d.n>=2){
+      if(trazo && punteros.get(trazoPtr) && punteros.get(trazoPtr).t==="touch"){
+        if(Date.now()-trazoT0<350) cancelarTrazo(); else terminarTrazo();
+      }
+      if(goma && goma.ptr!==ev.pointerId) terminarGoma();
+      desplazando=d.y; return;
+    }
+    if(ev.width>34 || ev.height>34){ punteros.delete(ev.pointerId); return; }   // apoyo de la palma
+  }
+  if(trazo||goma) return;
+  const i=+cv.dataset.rpage, pos=posEn(cv,ev.clientX,ev.clientY);
+  if(reuHerr==="goma"){ goma={pag:i,items:[],ptr:ev.pointerId}; borrarEn(i,pos[0],pos[1]); return; }
+  trazo={c:reuColor,w:reuGrosor,p:[pos[0],pos[1]]}; trazoPtr=ev.pointerId; trazoPag=i; trazoT0=Date.now();
+  tinta.paginas[i].trazos.push(trazo);
+  const ctx=cv.getContext("2d"); ctx.setTransform(cv.width/1000,0,0,cv.width/1000,0,0); dibujarTrazo(ctx,trazo);
+},{passive:false});
+
+document.addEventListener("pointermove",ev=>{
+  const p=punteros.get(ev.pointerId); if(!p) return;
+  p.x=ev.clientX; p.y=ev.clientY;
+  if(desplazando!==null && p.t==="touch"){
+    const d=dedos(); window.scrollBy(0,desplazando-d.y); desplazando=d.y; ev.preventDefault(); return;
+  }
+  if(trazo && ev.pointerId===trazoPtr){
+    const cv=lienzo(trazoPag); if(!cv) return;
+    const ctx=cv.getContext("2d"), s=cv.width/1000;
+    ctx.setTransform(s,0,0,s,0,0); ctx.strokeStyle=trazo.c; ctx.lineWidth=trazo.w; ctx.lineCap="round"; ctx.lineJoin="round";
+    const lista=ev.getCoalescedEvents?ev.getCoalescedEvents():[ev];
+    (lista.length?lista:[ev]).forEach(c=>{
+      const pos=posEn(cv,c.clientX,c.clientY), q=trazo.p, lx=q[q.length-2], ly=q[q.length-1];
+      if((pos[0]-lx)*(pos[0]-lx)+(pos[1]-ly)*(pos[1]-ly)<4) return;
+      q.push(pos[0],pos[1]);
+      ctx.beginPath(); ctx.moveTo(lx,ly); ctx.lineTo(pos[0],pos[1]); ctx.stroke();
+    });
+    ev.preventDefault(); return;
+  }
+  if(goma && ev.pointerId===goma.ptr){
+    const cv=lienzo(goma.pag); if(!cv) return;
+    const pos=posEn(cv,ev.clientX,ev.clientY); borrarEn(goma.pag,pos[0],pos[1]); ev.preventDefault();
+  }
+},{passive:false});
+
+function soltar(ev){
+  if(!punteros.has(ev.pointerId)) return;
+  punteros.delete(ev.pointerId);
+  if(trazo && ev.pointerId===trazoPtr){ pintarPagina(trazoPag); terminarTrazo(); }
+  if(goma && ev.pointerId===goma.ptr) terminarGoma();
+  const d=dedos(); desplazando = d.n ? d.y : null;
+}
+document.addEventListener("pointerup",soltar);
+document.addEventListener("pointercancel",soltar);
+
+/* ---------- deshacer ---------- */
+function deshacer(){
+  const a=hist.u.pop(); if(!a) return;
+  const pg=tinta.paginas[a.pag]; if(!pg) return;
+  if(a.t==="add"){ const i=pg.trazos.indexOf(a.tr); if(i>=0) pg.trazos.splice(i,1); }
+  else for(let k=a.items.length-1;k>=0;k--) pg.trazos.splice(a.items[k].i,0,a.items[k].tr);
+  hist.r.push(a); pintarPagina(a.pag); guardarTinta();
+}
+function rehacer(){
+  const a=hist.r.pop(); if(!a) return;
+  const pg=tinta.paginas[a.pag]; if(!pg) return;
+  if(a.t==="add") pg.trazos.push(a.tr);
+  else a.items.forEach(it=>{ const i=pg.trazos.indexOf(it.tr); if(i>=0) pg.trazos.splice(i,1); });
+  hist.u.push(a); pintarPagina(a.pag); guardarTinta();
+}
+
+/* ---------- acuerdos ---------- */
+function crearAcuerdo(destino){
+  const r=reunion(reuAbierta);
+  const txt=document.getElementById("rAcTxt").value.trim();
+  if(!txt){ document.getElementById("rAcTxt").focus(); return; }
+  const resp=document.getElementById("rAcResp").value.trim();
+  if(destino==="despacho"){
+    notas().push({id:uid(),texto:txt+(resp?" ("+resp+")":""),hecho:false,creado:aISO(hoy()),fechaHecho:null,reunionId:r.id});
+  }else{
+    const f=document.getElementById("rAcFecha").value;
+    if(rCuando==="fecha" && !f){ alert("Falta la fecha. Si aún no la hay, elige «Cuanto antes» o «Sin fecha»."); return; }
+    db.eventos.push({id:uid(),titulo:txt,fecha:rCuando==="fecha"?f:"",bolsa:rCuando==="fecha"?null:rCuando,
+      seccion:r.seccion,resp:resp,actividadId:"",offset:null,hecho:false,creado:aISO(hoy()),reunionId:r.id,
+      notas:"Acordado en la reunión «"+(r.titulo||"sin título")+"» del "+fechaCorta(r.fecha)+"."});
+  }
+  guardar();
+  document.getElementById("rAcTxt").value=""; document.getElementById("rAcResp").value="";
+  renderAcuerdos(); renderTally(); renderDespacho();
+  document.getElementById("rAcTxt").focus();
+}
+
+/* ---------- imprimir / PDF ---------- */
+function imprimirReunion(){
+  const r=reunion(reuAbierta); if(!r) return;
+  const ac=acuerdosDe(r.id);
+  let h='<h1>'+esc(r.titulo||"Reunión sin título")+'</h1>'+
+    '<p class="nota">'+esc(r.seccion)+' · '+fechaCorta(r.fecha)+(r.asistentes?' · Asistentes: '+esc(r.asistentes):'')+'</p>';
+  if(ac.evs.length||ac.desp.length){
+    h+='<h3 style="margin-top:18px">Acuerdos y tareas</h3><ul>';
+    ac.evs.forEach(e=>{ h+='<li>'+(e.hecho?"✓ ":"")+esc(e.titulo)+(e.resp?' — '+esc(e.resp):'')+' <em>('+cuandoHito(e)+')</em></li>'; });
+    ac.desp.forEach(n=>{ h+='<li>'+(n.hecho?"✓ ":"")+esc(n.texto)+' <em>(despacho con el jefe)</em></li>'; });
+    h+='</ul>';
+  }
+  tinta.paginas.forEach(pg=>{
+    const c=document.createElement("canvas"); c.width=1400; c.height=Math.round(1400*ALTO/1000);
+    dibujarHoja(c.getContext("2d"),1.4,pg,tinta.fondo);
+    h+='<img src="'+c.toDataURL("image/png")+'" alt="Hoja de la reunión">';
+  });
+  document.getElementById("impReu").innerHTML=h;
+  document.body.classList.add("imp-reu");
+  setTimeout(()=>window.print(),120);
+}
+window.addEventListener("afterprint",()=>document.body.classList.remove("imp-reu"));
+
+/* ---------- clics de la pestaña ---------- */
+function clickReuniones(ev){
+  const t=ev.target, q=s=>t.closest(s);
+  let x;
+  if(q("[data-rnueva]")){
+    const r={id:uid(),titulo:"",fecha:aISO(hoy()),seccion:"S3",asistentes:"",creado:aISO(hoy()),paginas:1};
+    db.reuniones.push(r); guardar(); abrirReunion(r.id); return true;
+  }
+  if((x=q("[data-rabrir]"))){ abrirReunion(x.dataset.rabrir); return true; }
+  if(q("[data-rcerrar]")){ cerrarReunion(); return true; }
+  if(q("[data-rborrar]")){
+    if(!confirm("Se elimina la reunión y sus hojas escritas. Los acuerdos ya pasados al horizonte se conservan. ¿Seguimos?")) return true;
+    const id=reuAbierta; db.reuniones=db.reuniones.filter(r=>r.id!==id); TINTA.del(id);
+    reuAbierta=null; tinta=null; soltarWakeLock(); guardar(); render(); return true;
+  }
+  if((x=q("[data-rtool]"))){ reuHerr=x.dataset.rtool; guardarPrefs(); pintarBarra(); return true; }
+  if((x=q("[data-rgrosor]"))){ reuGrosor=+x.dataset.rgrosor; reuHerr="pluma"; guardarPrefs(); pintarBarra(); return true; }
+  if((x=q("[data-rcolor]"))){ reuColor=x.dataset.rcolor; reuHerr="pluma"; guardarPrefs(); pintarBarra(); return true; }
+  if(q("[data-rundo]")){ deshacer(); return true; }
+  if(q("[data-rredo]")){ rehacer(); return true; }
+  if(q("[data-rfondo]")){
+    const orden=Object.keys(FONDOS); tinta.fondo=orden[(orden.indexOf(tinta.fondo)+1)%orden.length];
+    pintarBarra(); tinta.paginas.forEach((_,i)=>pintarPagina(i)); guardarTinta(); return true;
+  }
+  if(q("[data-rpag]")){
+    tinta.paginas.push({trazos:[]}); guardarTinta(); render();
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{ const c=lienzo(tinta.paginas.length-1); if(c) c.scrollIntoView({block:"start"}); }));
+    return true;
+  }
+  if((x=q("[data-rdelpag]"))){
+    const i=+x.dataset.rdelpag;
+    if(!confirm(tinta.paginas.length>1?"¿Quitar esta hoja y lo escrito en ella?":"¿Borrar todo lo escrito en esta hoja?")) return true;
+    if(tinta.paginas.length>1) tinta.paginas.splice(i,1); else tinta.paginas[0]={trazos:[]};
+    hist={u:[],r:[]}; guardarTinta(); render(); return true;
+  }
+  if(q("[data-rpdf]")){ imprimirReunion(); return true; }
+  if(q("[data-racuerdos]")){ document.getElementById("reuAcuerdos").scrollIntoView({behavior:"smooth"}); return true; }
+  if((x=q("[data-rcuando]"))){
+    rCuando=x.dataset.rcuando;
+    document.querySelectorAll("#rAcCuando [data-rcuando]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.rcuando===rCuando));
+    document.getElementById("rAcFecha").style.display = rCuando==="fecha"?"":"none";
+    return true;
+  }
+  if(q("[data-rach]")){ crearAcuerdo("horizonte"); return true; }
+  if(q("[data-racd]")){ crearAcuerdo("despacho"); return true; }
+  if((x=q("[data-rhecho]"))){ marcarHecho(x.dataset.rhecho); renderAcuerdos(); renderTally(); return true; }
+  if((x=q("[data-rdphecho]"))){
+    const n=notas().find(y=>y.id===x.dataset.rdphecho);
+    if(n){ n.hecho=!n.hecho; n.fechaHecho=n.hecho?aISO(hoy()):null; guardar(); renderAcuerdos(); renderDespacho(); }
+    return true;
+  }
+  return false;   // [data-ev] lo recoge el manejador general: abre el apunte
+}
+
+/* ==================== arranque ==================== */
+(async function(){
+  const guardado=await cargar();
+  if(guardado){
+    db=Object.assign({v:1,tipos:[],actividades:[],eventos:[],despacho:[],reuniones:[],ui:{}},guardado);
+  }else{
+    db.tipos=plantillasIniciales();
+    const a={id:uid(),nombre:"Marcha a pie 25 km — Batería A",tipoId:db.tipos[0].id,
+      seccion:"S3",unidad:"Batería A",fechaD:sumarDias(aISO(hoy()),38),fechaFin:"",notas:"Ejemplo: edítala o bórrala."};
+    db.actividades.push(a); aplicarPlantilla(a); guardar();
+  }
+  db.ui=db.ui||{};
+  if(!Array.isArray(db.despacho)) db.despacho=[];
+  if(!Array.isArray(db.reuniones)) db.reuniones=[];
+  if(db.ui.reu){ reuHerr=db.ui.reu.herr||reuHerr; reuColor=db.ui.reu.color||reuColor; reuGrosor=db.ui.reu.grosor||reuGrosor; }
+  agrupar=!!db.ui.agrupar;
+  // datos de versiones anteriores: todo lo que no tenga bolsa ni fecha de alta
+  db.eventos.forEach(e=>{
+    if(e.bolsa===undefined) e.bolsa=null;
+    if(!e.creado) e.creado=aISO(hoy());
+    if(!e.fecha && !e.bolsa) e.bolsa="sinfecha";
+  });
+  // recoloca hitos por si cambió algún día D fuera de la app
+  db.actividades.forEach(a=>{
+    if(!a.fechaD) return;
+    db.eventos.forEach(e=>{ if(e.actividadId===a.id && e.offset!=null && !e.hecho) e.fecha=sumarDias(a.fechaD,e.offset); });
+  });
+  render();
+})();
+
+// app instalable: funciona sin conexión una vez abierta
+if("serviceWorker" in navigator && location.protocol==="https:"){
+  navigator.serviceWorker.register("sw.js").catch(()=>{});
+}
+// pide al navegador que no borre los datos por falta de espacio
+if(navigator.storage && navigator.storage.persist){ navigator.storage.persist().catch(()=>{}); }
+</script>
+</body>
+</html>
